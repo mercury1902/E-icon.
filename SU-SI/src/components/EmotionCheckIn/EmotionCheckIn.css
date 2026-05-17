@@ -1,0 +1,93 @@
+.emotion-checkin {
+  margin-bottom: 32px;
+}
+
+.emotion-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.emotion-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.emotion-btn .emoji {
+  font-size: 24px;
+  line-height: 1;
+  transition: transform var(--transition);
+}
+
+.emotion-btn:hover {
+  border-color: var(--primary);
+  color: var(--text);
+  background: rgba(167, 139, 250, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(167, 139, 250, 0.15);
+}
+
+.emotion-btn:hover .emoji {
+  transform: scale(1.2);
+}
+
+.emotion-btn:active {
+  transform: scale(0.95);
+}
+
+.emotion-btn.selected {
+  border-color: var(--primary);
+  background: rgba(167, 139, 250, 0.15);
+  color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.3);
+}
+
+.emotion-btn.selected .emoji {
+  transform: scale(1.15);
+}
+
+.checkin-prompt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  background: rgba(167, 139, 250, 0.08);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--primary);
+}
+
+.checkin-prompt p {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.checkin-prompt strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .emotion-grid {
+    gap: 6px;
+  }
+  .emotion-btn {
+    padding: 10px 6px;
+    font-size: 11px;
+  }
+  .emotion-btn .emoji {
+    font-size: 20px;
+  }
+}

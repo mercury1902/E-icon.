@@ -1,0 +1,247 @@
+.post-composer {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 32px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.post-composer:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
+}
+
+.composer-section-header {
+  margin-bottom: 16px;
+}
+
+.composer-section-header h2 {
+  font-size: 18px;
+}
+
+.composer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.pseudo-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pseudo-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  transition: transform 0.4s ease;
+}
+
+.pseudo-avatar.refresh {
+  animation: pseudoPulse 0.4s ease;
+}
+
+@keyframes pseudoPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.pseudo-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.pseudo-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pseudo-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pseudo-label .shield-small {
+  font-size: 10px;
+}
+
+.shuffle-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color var(--transition);
+}
+
+.shuffle-btn:hover {
+  color: var(--primary);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.composer-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 14px;
+  font-family: var(--font);
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color var(--transition);
+  margin-bottom: 8px;
+}
+
+.composer-textarea::placeholder {
+  color: var(--text-dim);
+}
+
+.composer-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.composer-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.char-count {
+  font-size: 12px;
+  color: var(--text-dim);
+  transition: color var(--transition);
+}
+
+.char-count.warn {
+  color: var(--danger);
+}
+
+.privacy-hint {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.composer-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.composer-tag {
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.composer-tag:hover {
+  border-color: var(--secondary);
+  color: var(--secondary);
+  background: var(--secondary-dim);
+}
+
+.composer-tag.selected {
+  border-color: var(--secondary);
+  background: var(--secondary-dim);
+  color: var(--secondary);
+}
+
+.composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.privacy-notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.privacy-notice .lock {
+  font-size: 12px;
+}
+
+.submit-btn {
+  padding: 10px 28px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--primary), #7C5CFC);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(167, 139, 250, 0.4);
+}
+
+.submit-btn:active {
+  transform: scale(0.97);
+}
+
+.submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 480px) {
+  .post-composer {
+    padding: 14px;
+  }
+  .composer-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .submit-btn {
+    justify-content: center;
+  }
+}
