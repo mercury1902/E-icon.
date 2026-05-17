@@ -1,0 +1,1 @@
+import{c as o}from"./createLucideIcon.9AAeZkDe.js";const t=[["path",{d:"M5 12h14",key:"1ays0h"}],["path",{d:"m12 5 7 7-7 7",key:"xquz4c"}]],c=o("arrow-right",t);const a=[["path",{d:"M12 19h8",key:"baeox8"}],["path",{d:"m4 17 6-6-6-6",key:"1yngyt"}]],r=o("terminal",a);export{c as A,r as T};

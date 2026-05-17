@@ -204,7 +204,15 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    const body = (await request.json()) as Partial<PromptOptimizerApiRequest>;
+    let body: Partial<PromptOptimizerApiRequest>;
+    try {
+      body = (await request.json()) as Partial<PromptOptimizerApiRequest>;
+    } catch {
+      return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
     const inputLanguagePreference = normalizeInputLanguagePreference(body.inputLanguagePreference);
     const outputLanguageMode = normalizeOutputLanguageMode(body.outputLanguageMode);
     const sanitizedMessages = sanitizeModelMessages(body.modelMessages ?? []);
@@ -338,12 +346,19 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'unknown-error';
     logTelemetry('internal_error', {
       clientKey,
       latencyMs: Date.now() - startedAt,
-      error: error instanceof Error ? error.message : 'unknown-error',
+      error: errorMessage,
     });
-    return new Response(JSON.stringify({ error: 'Failed to optimize prompt' }), {
+    if (errorMessage.includes('fetch failed') || errorMessage.includes('ENOTFOUND') || errorMessage.includes('ECONNREFUSED')) {
+      return new Response(JSON.stringify({ error: 'Cannot reach AI upstream — is the API server running?', details: errorMessage }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return new Response(JSON.stringify({ error: 'Failed to optimize prompt', details: errorMessage }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

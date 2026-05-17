@@ -1,0 +1,15 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { PromptOptimizerResponsiveWorkspaceWithAdaptiveNavigation } from '../../components/command-guide/prompt-optimizer-responsive-workspace-with-adaptive-navigation';
+---
+
+<Layout
+  title="Prompt Optimizer | ClaudeKit"
+  description="Prompt Optimizer chính thức của ClaudeKit với lịch sử ngữ cảnh và compare mode."
+>
+  <Fragment slot="head">
+    <link rel="canonical" href="/guide/prompt-optimizer" />
+  </Fragment>
+
+  <PromptOptimizerResponsiveWorkspaceWithAdaptiveNavigation client:load />
+</Layout>

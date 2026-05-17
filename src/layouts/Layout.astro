@@ -44,6 +44,28 @@ const { title = 'ClaudeKit Chat', description = 'ClaudeKit Prompt Optimizer and 
     </style>
   </head>
   <body class="min-h-screen bg-[var(--app-bg)] text-[var(--app-text)] antialiased">
+    <script is:inline>
+      (() => {
+        const EXTENSION_ATTRS = ['bis_skin_checked'];
+        const selector = EXTENSION_ATTRS.map((a) => `[${a}]`).join(',');
+        const strip = () => {
+          try {
+            document.querySelectorAll(selector).forEach((el) => {
+              for (const attr of EXTENSION_ATTRS) el.removeAttribute(attr);
+            });
+          } catch { /* ignore */ }
+        };
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', strip);
+        } else {
+          strip();
+        }
+        if (typeof MutationObserver !== 'undefined') {
+          const observer = new MutationObserver(strip);
+          observer.observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: EXTENSION_ATTRS });
+        }
+      })();
+    </script>
     <slot />
     <Toaster
       position="top-right"

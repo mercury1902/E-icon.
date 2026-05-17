@@ -69,7 +69,7 @@ export function PromptOptimizerResponsiveWorkspaceWithAdaptiveNavigation() {
   }, [layoutPreference.desktopNavigationMode, setDesktopNavigationMode]);
 
   return (
-    <div className="relative flex min-h-[100dvh] bg-[var(--app-bg)]">
+    <div className="relative flex min-h-[100dvh] bg-[var(--app-bg)]" suppressHydrationWarning>
       {isDesktopDockedSidebar && (
         <div
           className={`hidden transition-[width] duration-300 xl:block ${layoutPreference.navigationCollapsed ? 'w-20' : 'w-[300px]'}`}
@@ -84,7 +84,7 @@ export function PromptOptimizerResponsiveWorkspaceWithAdaptiveNavigation() {
       )}
 
       <main className="app-shell-main app-shell-main-scroll relative z-10 min-w-0 flex-1">
-        <div className="mx-auto w-full px-3 py-4 sm:px-5 sm:py-5 lg:max-w-[1120px] xl:max-w-[1360px] 2xl:max-w-[1500px]">
+        <div className="mx-auto w-full px-3 py-4 sm:px-5 sm:py-5 lg:max-w-[1120px] xl:max-w-[1360px] 2xl:max-w-[1500px]" suppressHydrationWarning>
           <PromptOptimizerChat
             onToggleNavigation={toggleNavigation}
             onToggleDesktopNavigationMode={isDesktopViewport ? toggleDesktopNavigationMode : undefined}
@@ -98,6 +98,7 @@ export function PromptOptimizerResponsiveWorkspaceWithAdaptiveNavigation() {
         className={`fixed inset-0 z-40 transition-opacity duration-300 ${
           overlayNavigationOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
         }`}
+        suppressHydrationWarning
       >
         <button
           type="button"
@@ -109,6 +110,7 @@ export function PromptOptimizerResponsiveWorkspaceWithAdaptiveNavigation() {
           className={`absolute left-0 top-0 h-full w-[88vw] max-w-[320px] transform transition-transform duration-300 ${
             overlayNavigationOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
+          suppressHydrationWarning
         >
           <VerticalNavSidebar
             currentPage="optimizer"

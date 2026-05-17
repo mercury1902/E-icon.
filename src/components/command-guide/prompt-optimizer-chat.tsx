@@ -30,6 +30,11 @@ import type {
   PromptOptimizerApiResponse,
 } from '../../types/prompt-optimizer-multilingual';
 
+// Must match server limits in src/pages/api/prompt-optimizer.ts
+const MAX_MODEL_MESSAGES = 20;
+const MAX_MESSAGE_CHARS = 4_000;
+const MAX_TOTAL_CHARS = 24_000;
+
 const INPUT_LANGUAGE_OPTIONS: Array<{ value: InputLanguagePreference; label: string }> = [
   { value: 'auto', label: 'Auto-detect' },
   { value: 'vi', label: 'Tiếng Việt' },
@@ -396,17 +401,33 @@ function PromptOptimizerContent({
     if (!optimisticTurn) return;
     setIsLoading(true);
 
+    // Trim modelMessages to match server's MAX_MODEL_MESSAGES
+    const modelMessages = optimisticTurn.modelMessages.slice(-MAX_MODEL_MESSAGES);
+
+    // Client-side validation matching server limits
+    const tooLargeMessage = modelMessages.find((m) => m.content.length > MAX_MESSAGE_CHARS);
+    if (tooLargeMessage) {
+      throw new Error(`Mỗi tin nhắn tối đa ${MAX_MESSAGE_CHARS} ký tự. Vui lòng chia nhỏ prompt.`);
+    }
+
+    const totalChars = modelMessages.reduce((sum, m) => sum + m.content.length, 0);
+    if (totalChars > MAX_TOTAL_CHARS) {
+      throw new Error(`Tổng nội dung tối đa ${MAX_TOTAL_CHARS} ký tự. Vui lòng giảm độ dài hoặc bắt đầu phiên mới.`);
+    }
+
+    const requestPayload = JSON.stringify({
+      modelMessages,
+      inputLanguagePreference,
+      outputLanguageMode,
+    });
+
     try {
       const response = await fetch('/api/prompt-optimizer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          modelMessages: optimisticTurn.modelMessages,
-          inputLanguagePreference,
-          outputLanguageMode,
-        }),
+        body: requestPayload,
       });
 
       const payload = await response.json().catch(() => ({}));

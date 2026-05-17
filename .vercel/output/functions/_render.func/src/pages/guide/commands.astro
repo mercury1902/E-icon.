@@ -1,0 +1,40 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { VerticalNavSidebar } from '../../components/chat/vertical-navigation-sidebar';
+import { CommandBrowserWithSearch } from '../../components/command-guide/command-browser-with-search';
+import { Terminal } from 'lucide-react';
+---
+
+<Layout title="Command Browser" description="Danh sách tất cả Claude Code commands">
+  <div class="app-shell">
+    {/* Vertical Navigation Sidebar */}
+    <VerticalNavSidebar currentPage="guide" client:load />
+
+    {/* Main Content */}
+    <main class="app-shell-main app-shell-main-scroll relative z-10">
+      <div class="py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+          {/* Header */}
+          <div class="flex items-center gap-4 mb-8">
+            <div class="p-3 rounded-xl bg-brand-400/20 text-brand-300">
+              <Terminal className="w-8 h-8" />
+            </div>
+            <div>
+              <h1 class="text-3xl font-bold text-white">
+                <span data-i18n="vi">Command Browser</span>
+                <span data-i18n="en">Command Browser</span>
+              </h1>
+              <p class="text-white/60">
+                <span data-i18n="vi">Danh sách đầy đủ tất cả Claude Code commands</span>
+                <span data-i18n="en">Complete list of Claude Code commands</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Command Browser */}
+          <CommandBrowserWithSearch client:load />
+        </div>
+      </div>
+    </main>
+  </div>
+</Layout>
