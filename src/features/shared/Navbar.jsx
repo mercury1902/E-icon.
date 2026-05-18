@@ -1,0 +1,62 @@
+import { Link, useLocation } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
+import { useApp } from '../../context/AppContext';
+
+function MoonIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  );
+}
+
+function SunIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+  );
+}
+
+function Navbar({ onCreateClick, onParallelClick, onBoardClick }) {
+  const location = useLocation();
+  const { dark, toggleTheme } = useTheme();
+  const { user } = useApp();
+
+  return (
+    <nav className="navbar">
+      <Link to="/" className="nav-brand">Whisper</Link>
+      <div className="nav-links">
+        <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
+          Feed
+        </Link>
+        <button className="nav-link" onClick={onParallelClick}>
+          Parallel Chat
+        </button>
+        <button className="nav-link" onClick={onBoardClick}>
+          Board
+        </button>
+        <button className="nav-link create-btn" onClick={onCreateClick}>
+          + Write Story
+        </button>
+        <Link to="/profile" className={`nav-link ${location.pathname === '/profile' ? 'active' : ''}`}>
+          <img src={user.avatar} alt={user.name} className="nav-avatar" />
+        </Link>
+
+        <button className="nav-link theme-btn" onClick={toggleTheme} title={dark ? 'Light mode' : 'Dark mode'}>
+          {dark ? <SunIcon /> : <MoonIcon />}
+        </button>
+      </div>
+    </nav>
+  );
+}
+
+export default Navbar;
