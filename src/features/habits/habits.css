@@ -1,0 +1,411 @@
+.weekly-tracker {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: border-color 0.3s;
+}
+
+.weekly-tracker-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.weekly-tracker-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.weekly-tracker-range {
+  display: block;
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.weekly-tracker-reset {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.weekly-tracker-reset:hover {
+  color: var(--text-h);
+  background: var(--code-bg);
+}
+
+.weekly-tracker-streak {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.weekly-tracker-streak-icon {
+  font-size: 16px;
+}
+
+.weekly-tracker-week-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.weekly-tracker-week-progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--code-bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.weekly-tracker-week-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.weekly-tracker-week-progress-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.weekly-tracker-weekdays {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.weekly-tracker-weekday {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 8px;
+  background: var(--bg-alt);
+  transition: background 0.2s;
+}
+
+.weekly-tracker-weekday.today {
+  background: var(--accent-bg);
+}
+
+.weekly-tracker-weekday.done {
+  background: var(--accent-bg);
+}
+
+.weekly-tracker-weekday-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.weekly-tracker-weekday.today .weekly-tracker-weekday-name {
+  color: var(--accent);
+}
+
+.weekly-tracker-weekday-dot {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1;
+}
+
+.weekly-tracker-weekday.done .weekly-tracker-weekday-dot {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.weekly-tracker-today {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+.weekly-tracker-today-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.weekly-tracker-today-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.weekly-tracker-today-pct {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.weekly-tracker-today-progress {
+  margin-bottom: 12px;
+}
+
+.weekly-tracker-today-progress-bar {
+  height: 6px;
+  background: var(--code-bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.weekly-tracker-today-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.weekly-tracker-today-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.weekly-tracker-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: none;
+  cursor: pointer;
+  font-family: var(--sans);
+  text-align: left;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.weekly-tracker-item:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.weekly-tracker-item.done {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.weekly-tracker-item.just-checked {
+  animation: weekly-tracker-pop 0.4s ease;
+}
+
+@keyframes weekly-tracker-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+.weekly-tracker-item-emoji {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.weekly-tracker-item-name {
+  flex: 1;
+  font-size: 15px;
+  color: var(--text-h);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weekly-tracker-item.done .weekly-tracker-item-name {
+  color: var(--accent);
+}
+
+.weekly-tracker-item-check {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.weekly-tracker-item-check.checked {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  animation: weekly-tracker-scale 0.3s ease;
+}
+
+@keyframes weekly-tracker-scale {
+  0% { transform: scale(0.7); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* Setup mode */
+
+.weekly-tracker-setup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 28px 12px;
+  text-align: center;
+}
+
+.weekly-tracker-setup-text {
+  font-size: 14px;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.weekly-tracker-setup-btn {
+  padding: 12px 28px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: opacity 0.2s;
+}
+
+.weekly-tracker-setup-btn:hover {
+  opacity: 0.9;
+}
+
+/* Setup form */
+
+.weekly-tracker-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.weekly-tracker-form-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.weekly-tracker-form-emoji {
+  flex-shrink: 0;
+}
+
+.weekly-tracker-emoji-select {
+  padding: 8px 4px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 18px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  line-height: 1;
+}
+
+.weekly-tracker-form-input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: var(--text-h);
+  font-size: 14px;
+  font-family: var(--sans);
+  min-width: 0;
+}
+
+.weekly-tracker-form-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+.weekly-tracker-form-freq {
+  padding: 9px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 13px;
+  font-family: var(--sans);
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+  max-width: 100px;
+}
+
+.weekly-tracker-form-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.weekly-tracker-form-remove:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.weekly-tracker-form-add {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px dashed var(--border);
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  font-family: var(--sans);
+  transition: all 0.2s;
+}
+
+.weekly-tracker-form-add:hover {
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.weekly-tracker-form-start {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: opacity 0.2s;
+  margin-top: 4px;
+}
+
+.weekly-tracker-form-start:hover {
+  opacity: 0.9;
+}
