@@ -7,6 +7,7 @@ import StoryPage from './features/stories/StoryPage';
 import ProfilePage from './features/profile/ProfilePage';
 import { ParallelProvider } from './features/parallel/ParallelContext';
 import ParallelMatchingPrefs from './features/parallel/ParallelMatchingPrefs';
+import ParallelBoard from './features/parallel/ParallelBoard';
 import ParallelChat from './features/parallel/ParallelChat';
 import './features/shared/nav.css';
 import './features/feed/feed.css';
@@ -20,6 +21,7 @@ import './features/parallel/parallel.css';
 function App() {
   const [showCreate, setShowCreate] = useState(false);
   const [showPrefs, setShowPrefs] = useState(false);
+  const [showBoard, setShowBoard] = useState(false);
   const [chatThreadId, setChatThreadId] = useState(null);
 
   return (
@@ -27,6 +29,7 @@ function App() {
       <Navbar
         onCreateClick={() => setShowCreate(true)}
         onParallelClick={() => setShowPrefs(true)}
+        onBoardClick={() => setShowBoard(true)}
       />
       <main className="main-content">
         <Routes>
@@ -40,11 +43,11 @@ function App() {
       {showPrefs && (
         <ParallelMatchingPrefs
           onClose={() => setShowPrefs(false)}
-          onMatched={(threadId) => {
-            setShowPrefs(false);
-            setChatThreadId(threadId);
-          }}
         />
+      )}
+
+      {showBoard && (
+        <ParallelBoard onClose={() => setShowBoard(false)} />
       )}
 
       {chatThreadId && (

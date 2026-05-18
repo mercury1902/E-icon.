@@ -12,11 +12,50 @@ function ParallelProvider({ children }) {
     }
   });
 
+  const [listings, setListings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('parallelListings');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [requests, setRequests] = useState(() => {
+    try {
+      const saved = localStorage.getItem('parallelRequests');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [notifications, setNotifications] = useState(() => {
+    try {
+      const saved = localStorage.getItem('parallelNotifications');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [isMatching, setIsMatching] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('parallelThreads', JSON.stringify(threads));
   }, [threads]);
+
+  useEffect(() => {
+    localStorage.setItem('parallelListings', JSON.stringify(listings));
+  }, [listings]);
+
+  useEffect(() => {
+    localStorage.setItem('parallelRequests', JSON.stringify(requests));
+  }, [requests]);
+
+  useEffect(() => {
+    localStorage.setItem('parallelNotifications', JSON.stringify(notifications));
+  }, [notifications]);
 
   const startMatching = useCallback(async () => {
     setIsMatching(true);
@@ -75,6 +114,150 @@ function ParallelProvider({ children }) {
     [threads]
   );
 
+  const getConnectionCount = useCallback(
+    () => threads.length,
+    [threads]
+  );
+
+  const createThread = useCallback(({ partnerName, partnerAvatar, role, description }) => {
+    const thread = {
+      id: `t${Date.now()}`,
+      partnerName,
+      partnerAvatar: partnerAvatar || '🦋',
+      prefs: { role },
+      description: description || '',
+      messages: [],
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+    };
+    setThreads((prev) => [...prev, thread]);
+    return thread;
+  }, []);
+
+  const createListing = useCallback(({ userId, userName, role, description }) => {
+    const listing = {
+      id: `l${Date.now()}`,
+      userId,
+      userName,
+      role,
+      description,
+      status: 'open',
+      createdAt: new Date().toISOString(),
+    };
+    setListings((prev) => [...prev, listing]);
+    return listing;
+  }, []);
+
+  const requestToJoin = useCallback(({ listingId, userId, userName }) => {
+    const request = {
+      id: `r${Date.now()}`,
+      listingId,
+      userId,
+      userName,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+    setRequests((prev) => [...prev, request]);
+    const listing = listings.find((l) => l.id === listingId);
+    if (listing) {
+      const notif = {
+        id: `n${Date.now()}`,
+        type: 'request',
+        listingId,
+        requestId: request.id,
+        fromUserName: userName,
+        fromUserId: userId,
+        role: listing.role,
+        description: listing.description,
+        read: false,
+        createdAt: new Date().toISOString(),
+      };
+      setNotifications((prev) => [...prev, notif]);
+    }
+    return request;
+  }, [listings]);
+
+  const approveRequest = useCallback((requestId) => {
+    const req = requests.find((r) => r.id === requestId);
+    if (!req) return null;
+    const listing = listings.find((l) => l.id === req.listingId);
+    if (!listing) return null;
+
+    setRequests((prev) =>
+      prev.map((r) => r.id === requestId ? { ...r, status: 'approved' } : r)
+    );
+    setListings((prev) =>
+      prev.map((l) => l.id === listing.id ? { ...l, status: 'matched' } : l)
+    );
+
+    const thread = createThread({
+      partnerName: req.userName,
+      partnerAvatar: '🦋',
+      role: listing.role,
+      description: listing.description,
+    });
+
+    const notif = {
+      id: `n${Date.now()}`,
+      type: 'approved',
+      threadId: thread.id,
+      fromUserName: listing.userName,
+      role: listing.role,
+      read: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications((prev) => [...prev, notif]);
+
+    return thread;
+  }, [requests, listings, createThread]);
+
+  const denyRequest = useCallback((requestId) => {
+    setRequests((prev) =>
+      prev.map((r) => r.id === requestId ? { ...r, status: 'denied' } : r)
+    );
+  }, []);
+
+  const getOpenListings = useCallback(
+    (userId) => listings.filter((l) => l.status === 'open' && l.userId !== userId),
+    [listings]
+  );
+
+  const getMyListings = useCallback(
+    (userId) => listings.filter((l) => l.userId === userId),
+    [listings]
+  );
+
+  const getPendingRequestsForListing = useCallback(
+    (listingId) => requests.filter((r) => r.listingId === listingId && r.status === 'pending'),
+    [requests]
+  );
+
+  const getAllRequests = useCallback(() => requests, [requests]);
+
+  const getNotifications = useCallback(
+    (userId) => notifications.filter((n) => {
+      if (n.type === 'approved') return true;
+      const listing = listings.find((l) => l.id === n.listingId);
+      return listing && listing.userId === userId;
+    }),
+    [notifications, listings]
+  );
+
+  const markNotificationsRead = useCallback(() => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  }, []);
+
+  const unreadNotificationCount = useCallback(
+    (userId) => notifications.filter((n) => {
+      if (n.read) return false;
+      if (n.type === 'approved') return true;
+      const listing = listings.find((l) => l.id === n.listingId);
+      return listing && listing.userId === userId;
+    }).length,
+    [notifications, listings]
+  );
+
   return (
     <ParallelContext.Provider
       value={{
@@ -87,6 +270,19 @@ function ParallelProvider({ children }) {
         getActiveThreads,
         getExpiredThreads,
         getAllThreads,
+        getConnectionCount,
+        createThread,
+        createListing,
+        requestToJoin,
+        approveRequest,
+        denyRequest,
+        getOpenListings,
+        getMyListings,
+        getPendingRequestsForListing,
+        getAllRequests,
+        getNotifications,
+        markNotificationsRead,
+        unreadNotificationCount,
       }}
     >
       {children}
@@ -100,5 +296,4 @@ function useParallel() {
   return ctx;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export { ParallelProvider, useParallel };

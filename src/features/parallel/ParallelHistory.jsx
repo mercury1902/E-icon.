@@ -27,6 +27,13 @@ function getLastMessagePreview(messages) {
   return prefix + last.content.slice(0, 80) + (last.content.length > 80 ? '...' : '');
 }
 
+const roleLabels = {
+  shareStory: 'Sharing story',
+  shareAdvice: 'Giving advice',
+  hearStory: 'Hearing story',
+  hearAdvice: 'Getting advice',
+};
+
 function ParallelHistory({ onBack }) {
   const { getActiveThreads, getExpiredThreads } = useParallel();
   const [openChatId, setOpenChatId] = useState(null);
@@ -71,6 +78,10 @@ function ParallelHistory({ onBack }) {
                 </div>
                 <div className="parallel-thread-middle">
                   <span className="parallel-thread-name">{thread.partnerName}</span>
+                  <span className="parallel-thread-role">{roleLabels[thread.prefs?.role] || ''}</span>
+                  {thread.description && (
+                    <span className="parallel-thread-desc">{thread.description}</span>
+                  )}
                   <span className="parallel-thread-preview">
                     {getLastMessagePreview(thread.messages)}
                   </span>
@@ -110,6 +121,10 @@ function ParallelHistory({ onBack }) {
                 </div>
                 <div className="parallel-thread-middle">
                   <span className="parallel-thread-name">{thread.partnerName}</span>
+                  <span className="parallel-thread-role">{roleLabels[thread.prefs?.role] || ''}</span>
+                  {thread.description && (
+                    <span className="parallel-thread-desc">{thread.description}</span>
+                  )}
                   <span className="parallel-thread-preview">
                     {getLastMessagePreview(thread.messages)}
                   </span>

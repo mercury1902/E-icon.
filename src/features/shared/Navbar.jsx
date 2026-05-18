@@ -26,7 +26,7 @@ function SunIcon() {
   );
 }
 
-function Navbar({ onCreateClick, onParallelClick }) {
+function Navbar({ onCreateClick, onParallelClick, onBoardClick }) {
   const location = useLocation();
   const { dark, toggleTheme } = useTheme();
   const { user } = useApp();
@@ -40,6 +40,9 @@ function Navbar({ onCreateClick, onParallelClick }) {
         </Link>
         <button className="nav-link" onClick={onParallelClick}>
           Parallel Chat
+        </button>
+        <button className="nav-link" onClick={onBoardClick}>
+          Board
         </button>
         <button className="nav-link create-btn" onClick={onCreateClick}>
           + Write Story

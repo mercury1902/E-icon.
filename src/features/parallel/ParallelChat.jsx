@@ -1,6 +1,13 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useParallel } from './ParallelContext';
 
+const roleLabels = {
+  shareStory: '📖 Sharing your story',
+  shareAdvice: '💡 Giving advice',
+  hearStory: '👂 Listening to a story',
+  hearAdvice: '🤝 Getting advice',
+};
+
 function formatTime(ts) {
   return new Date(ts).toLocaleTimeString('en-US', {
     hour: 'numeric',
@@ -115,6 +122,7 @@ function ParallelChat({ threadId, onClose }) {
   }
 
   const isActive = thread.status === 'active' && getExpiresAt(thread.expiresAt) > now;
+  const roleLabel = roleLabels[thread.prefs?.role] || 'A kindred spirit';
 
   function handleSend(e) {
     e.preventDefault();
@@ -163,12 +171,13 @@ function ParallelChat({ threadId, onClose }) {
                 {thread.partnerName}
               </span>
               <span className="parallel-chat-tagline">
-                {thread.prefs ? (
-                  <>You: {thread.prefs.shareType === 'advice' ? '💡 Advice' : '📖 Story'} · Hear: {thread.prefs.hearType === 'advice' ? '💡 Advice' : '📖 Story'}</>
-                ) : (
-                  'A kindred spirit'
-                )}
+                {roleLabel}
               </span>
+              {thread.description && (
+                <span className="parallel-chat-description">
+                  {thread.description}
+                </span>
+              )}
             </div>
           </div>
           <div className="parallel-chat-header-right">
@@ -244,7 +253,7 @@ function ParallelChat({ threadId, onClose }) {
           </form>
         ) : (
           <div className="parallel-chat-expired" role="status">
-            <p>This conversation has ended. Thank you for sharing with each other. 💫</p>
+            <p>This conversation has ended. Thank you for sharing with each other.</p>
           </div>
         )}
 

@@ -1,36 +1,33 @@
 import { useState } from 'react';
 import { useParallel } from './ParallelContext';
 
-const shareOptions = [
-  { value: 'advice', label: 'Share Advice', icon: '💡', desc: 'Help someone with your experience' },
-  { value: 'story', label: 'Share My Story', icon: '📖', desc: 'Tell someone what you have been through' },
-];
-
-const hearOptions = [
-  { value: 'advice', label: 'Advice', icon: '🤝', desc: 'Get helpful perspective from someone' },
-  { value: 'story', label: 'A Story', icon: '👂', desc: 'Hear about someone else\'s experience' },
+const roleOptions = [
+  { value: 'shareStory', label: 'Share My Story', icon: '📖', desc: 'Tell your story to someone who will listen' },
+  { value: 'shareAdvice', label: 'Give Advice', icon: '💡', desc: 'Help someone with your experience' },
+  { value: 'hearStory', label: 'Hear a Story', icon: '👂', desc: 'Listen to someone else\'s journey' },
+  { value: 'hearAdvice', label: 'Get Advice', icon: '🤝', desc: 'Receive guidance from someone' },
 ];
 
 const genderOptions = [
   { value: 'any', label: 'Anyone', icon: '🌍' },
   { value: 'male', label: 'Male', icon: '♂️' },
   { value: 'female', label: 'Female', icon: '♀️' },
-  { value: 'nonbinary', label: 'Non-binary', icon: '⚧️' },
+  { value: 'others', label: 'Others', icon: '⚧️' },
 ];
 
 function ParallelMatchingPrefs({ onClose }) {
   const { startMatching } = useParallel();
-  const [shareType, setShareType] = useState(null);
-  const [hearType, setHearType] = useState(null);
+  const [role, setRole] = useState(null);
+  const [description, setDescription] = useState('');
   const [genderPref, setGenderPref] = useState('any');
   const [finding, setFinding] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
 
   async function handleFind() {
-    if (!shareType || !hearType) return;
+    if (!role) return;
     setFinding(true);
     setUnavailable(false);
-    const result = await startMatching({ shareType, hearType, genderPref });
+    const result = await startMatching({ role, genderPref });
     setFinding(false);
     if (!result.success) {
       setUnavailable(true);
@@ -42,7 +39,7 @@ function ParallelMatchingPrefs({ onClose }) {
     handleFind();
   }
 
-  const isValid = shareType && hearType;
+  const isValid = !!role;
 
   return (
     <div className="parallel-modal-overlay" onClick={finding ? null : onClose}>
@@ -95,19 +92,19 @@ function ParallelMatchingPrefs({ onClose }) {
           <>
             <div className="parallel-prefs-header">
               <h2>Find Your Parallel</h2>
-              <p>Match with a kindred spirit for a private 48-hour conversation.</p>
+              <p>Match with a kindred spirit for a private 30-minute conversation.</p>
             </div>
 
             <div className="parallel-prefs-section">
               <label className="parallel-prefs-label">I want to...</label>
-              <div className="parallel-prefs-grid" role="radiogroup" aria-label="What do you want to share">
-                {shareOptions.map((opt) => (
+              <div className="parallel-prefs-grid" role="radiogroup" aria-label="What do you want to do">
+                {roleOptions.map((opt) => (
                   <button
                     key={opt.value}
-                    className={`parallel-prefs-card ${shareType === opt.value ? 'selected' : ''}`}
-                    onClick={() => setShareType(opt.value)}
+                    className={`parallel-prefs-card ${role === opt.value ? 'selected' : ''}`}
+                    onClick={() => setRole(opt.value)}
                     role="radio"
-                    aria-checked={shareType === opt.value}
+                    aria-checked={role === opt.value}
                   >
                     <span className="parallel-prefs-card-icon">{opt.icon}</span>
                     <span className="parallel-prefs-card-label">{opt.label}</span>
@@ -118,22 +115,15 @@ function ParallelMatchingPrefs({ onClose }) {
             </div>
 
             <div className="parallel-prefs-section">
-              <label className="parallel-prefs-label">I want to hear...</label>
-              <div className="parallel-prefs-grid" role="radiogroup" aria-label="What do you want to hear">
-                {hearOptions.map((opt) => (
-                  <button
-                    key={opt.value}
-                    className={`parallel-prefs-card ${hearType === opt.value ? 'selected' : ''}`}
-                    onClick={() => setHearType(opt.value)}
-                    role="radio"
-                    aria-checked={hearType === opt.value}
-                  >
-                    <span className="parallel-prefs-card-icon">{opt.icon}</span>
-                    <span className="parallel-prefs-card-label">{opt.label}</span>
-                    <span className="parallel-prefs-card-desc">{opt.desc}</span>
-                  </button>
-                ))}
-              </div>
+              <label className="parallel-prefs-label">A short description (optional)</label>
+              <textarea
+                className="parallel-prefs-textarea"
+                placeholder="What do you want to talk about? This helps others find you..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                maxLength={300}
+              />
             </div>
 
             <div className="parallel-prefs-section">

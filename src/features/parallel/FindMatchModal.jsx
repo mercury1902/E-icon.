@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParallel } from './ParallelContext';
 
+const roleDescriptions = {
+  shareStory: { share: 'share a story', hear: 'hear your story' },
+  shareAdvice: { share: 'give advice', hear: 'receive advice' },
+  hearStory: { share: 'hear a story', hear: 'share their story' },
+  hearAdvice: { share: 'get advice', hear: 'offer advice' },
+};
+
 function FindMatchModal({ prefs, onClose }) {
   const { startMatching } = useParallel();
   const [phase, setPhase] = useState('listening');
@@ -23,7 +30,7 @@ function FindMatchModal({ prefs, onClose }) {
       setPhase('searching');
     }, 1500);
 
-    const defaultPrefs = prefs || { shareType: 'story', hearType: 'story', genderPref: 'any' };
+    const defaultPrefs = prefs || { role: 'shareStory', genderPref: 'any' };
 
     startMatching(defaultPrefs).then((result) => {
       if (!result.success) {
@@ -38,8 +45,7 @@ function FindMatchModal({ prefs, onClose }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const shareLabel = prefs?.shareType === 'advice' ? 'share advice' : 'share a story';
-  const hearLabel = prefs?.hearType === 'advice' ? 'advice' : 'a story';
+  const desc = roleDescriptions[prefs?.role] || roleDescriptions.shareStory;
 
   if (unavailable) {
     return (
@@ -49,7 +55,7 @@ function FindMatchModal({ prefs, onClose }) {
             <span className="parallel-unavailable-icon">🔍</span>
             <h2>No one available right now</h2>
             <p>
-              We searched but could not find anyone who wants to hear {hearLabel}
+              We searched but could not find anyone who wants to {desc.hear}
               at this moment. Please try again later.
             </p>
             <div className="parallel-unavailable-actions">
@@ -64,8 +70,8 @@ function FindMatchModal({ prefs, onClose }) {
   }
 
   const phaseMessages = {
-    listening: `Listening — you want to ${shareLabel}`,
-    searching: `Finding someone who wants to hear ${hearLabel}`,
+    listening: `Listening — you want to ${desc.share}`,
+    searching: `Finding someone who wants to ${desc.hear}`,
   };
 
   return (
