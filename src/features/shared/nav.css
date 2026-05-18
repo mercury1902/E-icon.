@@ -1,0 +1,75 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 60px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-brand {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent) !important;
+  text-decoration: none !important;
+  letter-spacing: -0.5px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-link {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text) !important;
+  text-decoration: none !important;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.nav-link:hover {
+  background: var(--code-bg);
+  color: var(--text-h) !important;
+  text-decoration: none !important;
+}
+
+.nav-link.active {
+  background: var(--accent-bg);
+  color: var(--accent) !important;
+}
+
+.create-btn {
+  color: var(--accent) !important;
+  font-weight: 600;
+}
+
+.theme-btn {
+  font-size: 18px;
+  padding: 8px 10px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-btn svg {
+  display: block;
+}
+
+.nav-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: block;
+}
