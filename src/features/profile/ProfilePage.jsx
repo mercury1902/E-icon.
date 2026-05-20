@@ -4,6 +4,7 @@ import { useParallel } from '../parallel/ParallelContext';
 import ProfileHeader from './ProfileHeader';
 import StoryCard from '../feed/StoryCard';
 import HabitProgress from '../habits/HabitProgress';
+import AutoTrackerChart from '../habits/AutoTrackerChart';
 import MoodCalendar from '../mood/MoodCalendar';
 import ParallelHistory from '../parallel/ParallelHistory';
 
@@ -131,6 +132,7 @@ function ProfilePage() {
         {tab === 'habits' && (
           <div className="profile-habits">
             <HabitProgress />
+            <AutoTrackerChart />
           </div>
         )}
 

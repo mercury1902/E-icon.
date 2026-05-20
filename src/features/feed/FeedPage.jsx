@@ -3,6 +3,7 @@ import MoodCheckin from '../mood/MoodCheckin';
 import WeeklyHabitTracker from '../habits/WeeklyHabitTracker';
 import DailyAffirmation from '../wellbeing/DailyAffirmation';
 import BreathingExercise from '../wellbeing/BreathingExercise';
+import AutoTrackerChart from '../habits/AutoTrackerChart';
 import DailyPrompt from './DailyPrompt';
 import TopicFilter from './TopicFilter';
 import StoryCard from './StoryCard';
@@ -36,6 +37,7 @@ function FeedPage() {
       <aside className="feed-sidebar-right">
         <DailyAffirmation />
         <BreathingExercise />
+        <AutoTrackerChart />
       </aside>
     </div>
   );

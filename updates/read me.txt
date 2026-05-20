@@ -1,0 +1,63 @@
+=== HABIT TRACKER FEATURE ===
+
+This feature auto-tracks user habits and accomplishments.
+It reads from the existing Whisper app's localStorage data.
+When merged with the UI later, no extra wiring is needed.
+
+=== AUTO TRACKER ===
+
+File: src/features/habits/autoTracker.js
+
+Watches localStorage keys (habitLog, weeklyHabits, moodLog) and
+automatically compiles tracking summaries, streak data, and chart data.
+
+Exported functions:
+  getTrackingSummary()   - Returns full stats: streaks, chart, badges, habits
+  checkAndUnlockBadges() - Checks streak thresholds and unlocks new badges
+
+=== AUTO TRACKER CHART ===
+
+File: src/features/habits/AutoTrackerChart.jsx
+
+React component that displays:
+  - Current streak count
+  - Longest streak
+  - Total active days
+  - Weekly heatmap (last 8 weeks)
+  - Hidden streak badges (auto-unlocked)
+
+Placed on:
+  - FeedPage (right sidebar)
+  - ProfilePage (> Habits tab)
+
+=== HIDDEN BADGES (Auto-Unlock) ===
+
+Badges stored in localStorage key: autoBadges
+
+  Streak 7   → Week Warrior     🔥
+  Streak 30  → Month Master     💪
+  Streak 60  → Two-Month Titan  ⚡
+  Streak 100 → Century Champion 🏆
+
+When a streak threshold is reached, the badge is auto-unlocked
+and a notification appears on the chart.
+
+=== DATA SOURCE ===
+
+All data comes from the existing app's localStorage:
+  habitLog       - Daily habit completions
+  weeklyHabits   - Weekly habit tracker
+  moodLog        - Daily mood entries
+
+No database needed yet. Friend can wire that later.
+
+=== FOLDER STRUCTURE ===
+
+updates/
+  read me.txt            (this file)
+  habits/
+    badge_streak_100     (hidden - placeholder note)
+
+src/features/habits/
+  autoTracker.js         (auto-tracking engine)
+  AutoTrackerChart.jsx   (React chart component)
