@@ -25,27 +25,26 @@ function CalendarGrid({ dates }) {
 }
 
 function HabitProgress() {
-  const { activeHabits, habitCatalog, getHabitCompletions } = useApp();
-
-  const tracked = useMemo(
-    () => activeHabits
-      .map((id) => habitCatalog.find((h) => h.id === id))
-      .filter(Boolean),
-    [activeHabits, habitCatalog]
-  );
+  const { userHabits, getHabitCompletions } = useApp();
 
   const { entries, totalCompletions } = useMemo(() => {
-    const list = tracked.map((h) => {
+    const list = userHabits.map((h) => {
       const dates = getHabitCompletions(h.id);
       const t = Object.keys(dates).length;
-      return { habit: h, dates, total: t, streak: getCurrentStreak(dates), longest: getLongestStreak(dates) };
+      return {
+        habit: h,
+        dates,
+        total: t,
+        streak: getCurrentStreak(dates),
+        longest: getLongestStreak(dates),
+      };
     });
     const total = list.reduce((sum, e) => sum + e.total, 0);
     return { entries: list, totalCompletions: total };
-  }, [tracked, getHabitCompletions]);
+  }, [userHabits, getHabitCompletions]);
 
-  if (tracked.length === 0) {
-    return <p className="empty-state">No habits added yet. Start tracking from the feed!</p>;
+  if (userHabits.length === 0) {
+    return <p className="empty-state">No habits yet. Create some to start tracking!</p>;
   }
 
   return (
@@ -57,8 +56,9 @@ function HabitProgress() {
       {entries.map(({ habit, dates, total, streak, longest }) => (
         <div key={habit.id} className="habit-progress-card">
           <div className="habit-progress-card-header">
-            <span className="habit-progress-icon">{habitIcons[habit.id]}</span>
+            <span className="habit-progress-icon">{habitIcons[habit.id] || habit.icon || '⭐'}</span>
             <span className="habit-progress-name">{habit.name}</span>
+            {habit.description && <span className="habit-progress-desc">{habit.description}</span>}
             <div className="habit-progress-stats">
               {streak > 0 && <span className="habit-progress-streak">🔥 {streak} day streak</span>}
               {longest > streak && <span className="habit-progress-best">🏆 Best: {longest}</span>}

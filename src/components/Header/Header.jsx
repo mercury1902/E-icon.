@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './Header.css';
 
 const tags = [
@@ -22,6 +24,8 @@ export default function Header({
   const [scrolled, setScrolled] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const searchRef = useRef(null);
+  const { user, profile, isAdmin, signOut } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 10);
@@ -46,10 +50,10 @@ export default function Header({
           <span className="hamburger-line" />
         </button>
 
-        <a href="/" className="logo" aria-label="Murmur home">
+        <Link to="/" className="logo" aria-label="Murmur home">
           <span className="logo-icon" aria-hidden="true">M</span>
           <span className="logo-text">Murmur</span>
-        </a>
+        </Link>
 
         <div
           className={`search-wrapper${searchFocused ? ' focused' : ''}`}
@@ -70,7 +74,7 @@ export default function Header({
             onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
             aria-controls="search-tags-panel"
           />
-          <span className="search-icon" aria-hidden="true">&#x1F50D;</span>
+          <span className="search-icon" aria-hidden="true">{'\u{1F50D}'}</span>
           <div
             className="search-tags"
             id="search-tags-panel"
@@ -98,23 +102,38 @@ export default function Header({
             aria-label="Toggle community sidebar"
             title="Community sidebar"
           >
-            <span aria-hidden="true">&#x1F4AC;</span>
+            <span aria-hidden="true">{'\u{1F4AC}'}</span>
           </button>
-          <button
-            className="icon-btn"
-            aria-label="Notifications"
-            title="Notifications"
-          >
-            <span aria-hidden="true">&#x1F514;</span>
-            <span className="badge" aria-label="Unread notifications" />
-          </button>
-          <button
-            className="avatar-btn"
-            aria-label="Your anonymous profile"
-            title="Anonymous Profile"
-          >
-            M
-          </button>
+
+          {user ? (
+            <>
+              {isAdmin && (
+                <Link to="/admin" className="icon-btn admin-icon-btn" title="Admin Dashboard">
+                  <span aria-hidden="true">{'\u{1F6E1}\u{FE0F}'}</span>
+                </Link>
+              )}
+              <button
+                className="icon-btn"
+                onClick={signOut}
+                aria-label="Sign out"
+                title="Sign out"
+              >
+                <span aria-hidden="true">{'\u{1F6AA}'}</span>
+              </button>
+              <div
+                className="avatar-btn"
+                aria-label={`Signed in as ${profile?.username || user.email}`}
+                title={profile?.username || 'User'}
+              >
+                {(profile?.username || 'U').charAt(0).toUpperCase()}
+              </div>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="header-auth-btn">Sign In</Link>
+              <Link to="/signup" className="header-auth-btn header-auth-btn-primary">Join</Link>
+            </>
+          )}
         </div>
       </div>
     </header>

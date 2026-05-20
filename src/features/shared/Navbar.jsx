@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../context/AuthContext';
 
 function MoonIcon() {
   return (
@@ -29,11 +29,11 @@ function SunIcon() {
 function Navbar({ onCreateClick, onParallelClick, onBoardClick }) {
   const location = useLocation();
   const { dark, toggleTheme } = useTheme();
-  const { user } = useApp();
+  const { user, profile, isAdmin, signOut } = useAuth();
 
   return (
     <nav className="navbar">
-      <Link to="/" className="nav-brand">Whisper</Link>
+      <Link to="/" className="nav-brand">Murmur</Link>
       <div className="nav-links">
         <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
           Feed
@@ -47,9 +47,29 @@ function Navbar({ onCreateClick, onParallelClick, onBoardClick }) {
         <button className="nav-link create-btn" onClick={onCreateClick}>
           + Write Story
         </button>
-        <Link to="/profile" className={`nav-link ${location.pathname === '/profile' ? 'active' : ''}`}>
-          <img src={user.avatar} alt={user.name} className="nav-avatar" />
-        </Link>
+
+        {user ? (
+          <>
+            {isAdmin && (
+              <Link to="/admin" className="nav-link admin-link" title="Admin Dashboard">
+                Admin
+              </Link>
+            )}
+            <button className="nav-link signout-btn" onClick={signOut} title="Sign out">
+              Sign Out
+            </button>
+            <Link to="/profile" className={`nav-link ${location.pathname === '/profile' ? 'active' : ''}`}>
+              <span className="nav-avatar-initial">
+                {(profile?.username || 'U').charAt(0).toUpperCase()}
+              </span>
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link to="/login" className="nav-link auth-link">Sign In</Link>
+            <Link to="/signup" className="nav-link auth-link auth-link-primary">Join</Link>
+          </>
+        )}
 
         <button className="nav-link theme-btn" onClick={toggleTheme} title={dark ? 'Light mode' : 'Dark mode'}>
           {dark ? <SunIcon /> : <MoonIcon />}

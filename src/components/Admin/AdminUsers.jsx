@@ -1,164 +1,134 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import * as adminService from '../../services/adminService';
-
-const PAGE_SIZE = 15;
+import React, { useState, useEffect } from 'react';
+import { getUsers, deleteUser, suspendUser, restoreUser } from '../../services/admin';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [sortKey, setSortKey] = useState('created_at');
-  const [sortDir, setSortDir] = useState('desc');
-  const [page, setPage] = useState(0);
-  const [confirm, setConfirm] = useState(null);
+  const [error, setError] = useState('');
+  const [suspendModal, setSuspendModal] = useState(null);
+  const [suspendReason, setSuspendReason] = useState('');
 
-  const fetchUsers = useCallback(async () => {
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    setLoading(true);
+    setError('');
     try {
-      setLoading(true);
-      const data = await adminService.getUsers();
+      const data = await getUsers();
       setUsers(data || []);
-    } catch (e) {
-      console.error('Failed to load users:', e);
+    } catch (err) {
+      setError(err.message || 'Failed to load users');
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
-
-  const filtered = users
-    .filter((u) => {
-      if (!search) return true;
-      const q = search.toLowerCase();
-      return (
-        (u.username || '').toLowerCase().includes(q) ||
-        (u.nickname || '').toLowerCase().includes(q) ||
-        (u.email || '').toLowerCase().includes(q) ||
-        (u.role || '').toLowerCase().includes(q)
-      );
-    })
-    .sort((a, b) => {
-      const aVal = a[sortKey];
-      const bVal = b[sortKey];
-      if (!aVal) return 1;
-      if (!bVal) return -1;
-      const cmp = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-      return sortDir === 'asc' ? cmp : -cmp;
-    });
-
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-
-  const toggleSort = (key) => {
-    if (sortKey === key) {
-      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKey(key);
-      setSortDir('desc');
-    }
-    setPage(0);
   };
 
-  const handleAction = async (action, user) => {
+  const handleDelete = async (userId) => {
+    if (!window.confirm('Delete this user? This action cannot be undone.')) return;
     try {
-      if (action === 'suspend') {
-        const reason = prompt('Enter suspension reason:');
-        if (reason === null) return;
-        await adminService.suspendUser(user.user_id, reason);
-      } else if (action === 'restore') {
-        await adminService.restoreUser(user.user_id);
-      } else if (action === 'delete') {
-        await adminService.deleteUser(user.user_id);
-      }
-      setConfirm(null);
-      await fetchUsers();
-    } catch (e) {
-      alert('Action failed: ' + e.message);
+      await deleteUser(userId);
+      loadUsers();
+    } catch (err) {
+      alert(err.message);
     }
   };
 
-  const SortIcon = ({ column }) => {
-    if (sortKey !== column) return <span className="sort-icon sort-inactive">{'\u{2195}'}</span>;
-    return <span className="sort-icon">{sortDir === 'asc' ? '\u{2191}' : '\u{2193}'}</span>;
+  const handleSuspend = async (userId) => {
+    setSuspendModal(userId);
+    setSuspendReason('');
   };
 
-  if (loading) {
-    return <div className="admin-section-loading"><div className="admin-spinner" /></div>;
-  }
+  const confirmSuspend = async () => {
+    if (!suspendModal) return;
+    try {
+      await suspendUser(suspendModal, suspendReason);
+      setSuspendModal(null);
+      loadUsers();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleRestore = async (userId) => {
+    try {
+      await restoreUser(userId);
+      loadUsers();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  if (loading) return <div className="admin-loading">Loading users...</div>;
+  if (error) return <div className="admin-error">{error}</div>;
 
   return (
-    <div className="admin-section">
-      <div className="admin-toolbar">
-        <div className="admin-search">
-          <span className="admin-search-icon" aria-hidden="true">{'\u{1F50D}'}</span>
-          <input
-            type="text"
-            placeholder="Search users..."
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-            className="admin-search-input"
-          />
-        </div>
-        <button className="admin-btn admin-btn-outline" onClick={() => adminService.exportToCsv(filtered, 'users.csv')}>
-          {'\u{1F4E5}'} Export CSV
+    <div className="admin-table-section">
+      <div className="admin-table-toolbar">
+        <span className="admin-table-count">{users.length} user(s)</span>
+        <button className="admin-refresh-btn" onClick={loadUsers}>
+          {'\u{1F504}'} Refresh
         </button>
-        <span className="admin-count">{filtered.length} users</span>
       </div>
 
       <div className="admin-table-wrap">
         <table className="admin-table">
           <thead>
             <tr>
-              <th onClick={() => toggleSort('username')}>Username <SortIcon column="username" /></th>
-              <th onClick={() => toggleSort('nickname')}>Nickname <SortIcon column="nickname" /></th>
-              <th onClick={() => toggleSort('email')}>Email <SortIcon column="email" /></th>
-              <th onClick={() => toggleSort('age')}>Age <SortIcon column="age" /></th>
-              <th onClick={() => toggleSort('role')}>Role <SortIcon column="role" /></th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Age</th>
+              <th>Role</th>
               <th>Status</th>
-              <th onClick={() => toggleSort('created_at')}>Registered <SortIcon column="created_at" /></th>
+              <th>Created</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {paged.length === 0 ? (
-              <tr><td colSpan={8} className="admin-empty">No users found</td></tr>
+            {users.length === 0 ? (
+              <tr><td colSpan="7" className="admin-table-empty">No users found.</td></tr>
             ) : (
-              paged.map((u) => (
-                <tr key={u.id} className={u.is_suspended ? 'row-suspended' : ''}>
-                  <td className="cell-primary">{u.username}</td>
-                  <td>{u.nickname || '\u2014'}</td>
-                  <td className="cell-mono">{u.email || '\u2014'}</td>
-                  <td>{u.age || '\u2014'}</td>
+              users.map((u) => (
+                <tr key={u.id} className={u.is_suspended ? 'suspended' : ''}>
+                  <td><span className="admin-username">{u.username}</span></td>
+                  <td className="admin-cell-muted">{u.email || '—'}</td>
+                  <td>{u.age ?? '—'}</td>
                   <td>
-                    <span className={`admin-role-badge ${u.role}`}>{u.role}</span>
+                    <span className={`admin-role-badge ${u.role === 'admin' ? 'role-admin' : 'role-user'}`}>
+                      {u.role}
+                    </span>
                   </td>
                   <td>
-                    {u.deleted_at ? (
-                      <span className="status-badge status-deleted">Deleted</span>
-                    ) : u.is_suspended ? (
-                      <span className="status-badge status-suspended" title={u.suspension_reason}>Suspended</span>
+                    {u.is_suspended ? (
+                      <span className="admin-status-bad suspended">Suspended</span>
+                    ) : u.deleted_at ? (
+                      <span className="admin-status-bad deleted">Deleted</span>
                     ) : (
-                      <span className="status-badge status-active">Active</span>
+                      <span className="admin-status-bad active">Active</span>
                     )}
                   </td>
-                  <td className="cell-date">{u.created_at ? new Date(u.created_at).toLocaleDateString() : '\u2014'}</td>
-                  <td className="cell-actions">
-                    {u.role !== 'admin' && (
+                  <td className="admin-cell-muted">
+                    {new Date(u.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="admin-actions-cell">
+                    {u.role !== 'admin' && !u.deleted_at && (
                       <>
                         {u.is_suspended ? (
-                          <button className="admin-btn-sm admin-btn-restore" onClick={() => handleAction('restore', u)}
-                            title="Restore user">Restore</button>
+                          <button className="admin-btn-sm admin-btn-restore" onClick={() => handleRestore(u.user_id)}>
+                            Restore
+                          </button>
                         ) : (
-                          <button className="admin-btn-sm admin-btn-warn" onClick={() => setConfirm({ action: 'suspend', user: u })}
-                            title="Suspend user">Suspend</button>
+                          <button className="admin-btn-sm admin-btn-suspend" onClick={() => handleSuspend(u.user_id)}>
+                            Suspend
+                          </button>
                         )}
-                        <button className="admin-btn-sm admin-btn-danger" onClick={() => setConfirm({ action: 'delete', user: u })}
-                          title="Delete user">Delete</button>
+                        <button className="admin-btn-sm admin-btn-danger" onClick={() => handleDelete(u.user_id)}>
+                          Delete
+                        </button>
                       </>
                     )}
-                    {u.role === 'admin' && <span className="admin-na">\u2014</span>}
+                    {u.role === 'admin' && <span className="admin-cell-muted">—</span>}
                   </td>
                 </tr>
               ))
@@ -167,30 +137,21 @@ export default function AdminUsers() {
         </table>
       </div>
 
-      {totalPages > 1 && (
-        <div className="admin-pagination">
-          <button disabled={page === 0} onClick={() => setPage((p) => p - 1)}>Previous</button>
-          <span>Page {page + 1} of {totalPages}</span>
-          <button disabled={page >= totalPages - 1} onClick={() => setPage((p) => p + 1)}>Next</button>
-        </div>
-      )}
-
-      {confirm && (
-        <div className="admin-modal-overlay" onClick={() => setConfirm(null)}>
+      {suspendModal && (
+        <div className="admin-modal-overlay" onClick={() => setSuspendModal(null)}>
           <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Confirm Action</h3>
-            <p>
-              Are you sure you want to <strong>{confirm.action}</strong> user <strong>{confirm.user.username}</strong>?
-              {confirm.action === 'delete' && <span className="modal-warning"> This action cannot be easily undone.</span>}
-            </p>
+            <h3>Suspend User</h3>
+            <p>Reason for suspension:</p>
+            <textarea
+              className="admin-modal-input"
+              value={suspendReason}
+              onChange={(e) => setSuspendReason(e.target.value)}
+              placeholder="Enter reason..."
+              rows={3}
+            />
             <div className="admin-modal-actions">
-              <button className="admin-btn admin-btn-outline" onClick={() => setConfirm(null)}>Cancel</button>
-              <button
-                className={`admin-btn ${confirm.action === 'delete' ? 'admin-btn-danger' : confirm.action === 'suspend' ? 'admin-btn-warn' : 'admin-btn-primary'}`}
-                onClick={() => handleAction(confirm.action, confirm.user)}
-              >
-                Confirm {confirm.action}
-              </button>
+              <button className="admin-btn-sm" onClick={() => setSuspendModal(null)}>Cancel</button>
+              <button className="admin-btn-sm admin-btn-danger" onClick={confirmSuspend}>Suspend</button>
             </div>
           </div>
         </div>

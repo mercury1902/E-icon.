@@ -1,5 +1,14 @@
-import { createContext, useContext, useState } from 'react';
-import { user as initialUser, stories as initialStories, badges as badgeDefs, topics, prompts, habitCatalog, affirmations } from '../data/mockData';
+import { createContext, useContext, useState, useCallback } from 'react';
+import { user as initialUser, stories as initialStories, badges as badgeDefs, topics, prompts, affirmations } from '../data/mockData';
+import { saveMoodCheckin, getMoodHistory } from '../services/mood';
+import * as habitsService from '../services/habits';
+import { habitCatalog } from '../data/mockData';
+
+const MIGRATED_ICONS = {
+  walk: '🚶', exercise: '🏋️', meditate: '🧘', sleep: '😴', water: '💧',
+  journal: '✍️', read: '📖', cook: '🍳', tidy: '🧹', screentime: '📱',
+  trynew: '🎯', sayyes: '👍', speakup: '💬', alone: '🧑', askhelp: '🙏',
+};
 
 const AppContext = createContext();
 
@@ -17,7 +26,7 @@ function AppProvider({ children }) {
     return saved ? JSON.parse(saved) : {};
   });
 
-  function setMood(mood) {
+  const setMood = useCallback(async (mood) => {
     setCurrentMood(mood);
     if (mood) {
       localStorage.setItem('mood', mood);
@@ -27,14 +36,40 @@ function AppProvider({ children }) {
         localStorage.setItem('moodLog', JSON.stringify(next));
         return next;
       });
+      try {
+        await saveMoodCheckin(mood);
+      } catch {
+        // Supabase not available, localStorage is fine
+      }
     } else {
       localStorage.removeItem('mood');
     }
-  }
+  }, []);
 
-  const [activeHabits, setActiveHabits] = useState(() => {
-    const saved = localStorage.getItem('activeHabits');
-    return saved ? JSON.parse(saved) : [];
+  const [userHabits, setUserHabits] = useState(() => {
+    const saved = localStorage.getItem('userHabits');
+    if (saved) return JSON.parse(saved);
+    const oldActive = localStorage.getItem('activeHabits');
+    if (oldActive) {
+      const ids = JSON.parse(oldActive);
+      const migrated = ids.map((id) => {
+        const ref = habitCatalog.find((h) => h.id === id);
+        if (!ref) return null;
+        const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+        return {
+          id,
+          name: ref.name,
+          description: '',
+          category: ref.category.split('-').map(cap).join(' '),
+          icon: MIGRATED_ICONS[id] || '⭐',
+          createdAt: new Date().toISOString(),
+        };
+      }).filter(Boolean);
+      localStorage.setItem('userHabits', JSON.stringify(migrated));
+      localStorage.removeItem('activeHabits');
+      return migrated;
+    }
+    return [];
   });
 
   const [habitLog, setHabitLog] = useState(() => {
@@ -42,24 +77,52 @@ function AppProvider({ children }) {
     return saved ? JSON.parse(saved) : {};
   });
 
-  function addHabit(habitId) {
-    setActiveHabits((prev) => {
-      if (prev.includes(habitId)) return prev;
-      const next = [...prev, habitId];
-      localStorage.setItem('activeHabits', JSON.stringify(next));
+  const createHabit = useCallback(async (data) => {
+    const id = `user_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const habit = {
+      id,
+      name: data.name.trim(),
+      description: (data.description || '').trim(),
+      category: data.category.trim() || 'General',
+      icon: data.icon || '⭐',
+      createdAt: new Date().toISOString(),
+    };
+    setUserHabits((prev) => {
+      const next = [...prev, habit];
+      localStorage.setItem('userHabits', JSON.stringify(next));
       return next;
     });
-  }
+    await habitsService.createUserHabit(habit);
+    return id;
+  }, []);
 
-  function removeHabit(habitId) {
-    setActiveHabits((prev) => {
-      const next = prev.filter((id) => id !== habitId);
-      localStorage.setItem('activeHabits', JSON.stringify(next));
+  const updateHabit = useCallback(async (id, updates) => {
+    setUserHabits((prev) => {
+      const next = prev.map((h) =>
+        h.id === id ? { ...h, ...updates, name: updates.name?.trim() || h.name } : h
+      );
+      localStorage.setItem('userHabits', JSON.stringify(next));
       return next;
     });
-  }
+    await habitsService.updateUserHabit(id, updates);
+  }, []);
 
-  function toggleHabit(habitId, dateKey) {
+  const deleteHabit = useCallback(async (id) => {
+    setUserHabits((prev) => {
+      const next = prev.filter((h) => h.id !== id);
+      localStorage.setItem('userHabits', JSON.stringify(next));
+      return next;
+    });
+    setHabitLog((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      localStorage.setItem('habitLog', JSON.stringify(next));
+      return next;
+    });
+    await habitsService.deleteUserHabit(id);
+  }, []);
+
+  const toggleHabit = useCallback(async (habitId, dateKey) => {
     setHabitLog((prev) => {
       const habitDates = prev[habitId] ? { ...prev[habitId] } : {};
       if (habitDates[dateKey]) {
@@ -71,11 +134,12 @@ function AppProvider({ children }) {
       localStorage.setItem('habitLog', JSON.stringify(next));
       return next;
     });
-  }
+    await habitsService.toggleHabit(habitId, dateKey);
+  }, []);
 
-  function getHabitCompletions(habitId) {
+  const getHabitCompletions = useCallback((habitId) => {
     return habitLog[habitId] || {};
-  }
+  }, [habitLog]);
 
   function getMonday(date) {
     const d = new Date(date);
@@ -270,11 +334,11 @@ function AppProvider({ children }) {
         setMood,
         moodLog,
         affirmations,
-        activeHabits,
+        userHabits,
         habitLog,
-        habitCatalog,
-        addHabit,
-        removeHabit,
+        createHabit,
+        updateHabit,
+        deleteHabit,
         toggleHabit,
         getHabitCompletions,
         weeklyHabits,

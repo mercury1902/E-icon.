@@ -4,6 +4,8 @@ import {
   trendingTags,
   emotionColors,
 } from '../../data/sidebarData';
+import MoodCheckin from '../../features/mood/MoodCheckin';
+import HabitCheckin from '../../features/habits/HabitCheckin';
 import './LeftSidebar.css';
 
 const emotionLabels = {
@@ -23,6 +25,8 @@ export default function LeftSidebar({
 }) {
   return (
     <aside className="left-sidebar" aria-label="Navigation sidebar">
+      <MoodCheckin />
+      <HabitCheckin />
       <nav className="sidebar-section" aria-label="Main navigation">
         <h3 className="sidebar-heading">Navigation</h3>
         <ul className="nav-list" role="list">

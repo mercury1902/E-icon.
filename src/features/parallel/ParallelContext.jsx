@@ -1,66 +1,95 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { parallelPartners } from '../../data/parallelMockData';
+import * as parallelService from '../../services/parallel';
 
 const ParallelContext = createContext();
 
+function getLocalStorage(key) {
+  try {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+}
+
+function setLocalStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // storage full
+  }
+}
+
 function ParallelProvider({ children }) {
   const [threads, setThreads] = useState(() => {
-    try {
-      const saved = localStorage.getItem('parallelThreads');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+    return getLocalStorage('parallelThreads') || [];
   });
 
   const [listings, setListings] = useState(() => {
-    try {
-      const saved = localStorage.getItem('parallelListings');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+    return getLocalStorage('parallelListings') || [];
   });
 
   const [requests, setRequests] = useState(() => {
-    try {
-      const saved = localStorage.getItem('parallelRequests');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+    return getLocalStorage('parallelRequests') || [];
   });
 
   const [notifications, setNotifications] = useState(() => {
-    try {
-      const saved = localStorage.getItem('parallelNotifications');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+    return getLocalStorage('parallelNotifications') || [];
   });
 
   const [isMatching, setIsMatching] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('parallelThreads', JSON.stringify(threads));
+    setLocalStorage('parallelThreads', threads);
   }, [threads]);
 
   useEffect(() => {
-    localStorage.setItem('parallelListings', JSON.stringify(listings));
+    setLocalStorage('parallelListings', listings);
   }, [listings]);
 
   useEffect(() => {
-    localStorage.setItem('parallelRequests', JSON.stringify(requests));
+    setLocalStorage('parallelRequests', requests);
   }, [requests]);
 
   useEffect(() => {
-    localStorage.setItem('parallelNotifications', JSON.stringify(notifications));
+    setLocalStorage('parallelNotifications', notifications);
   }, [notifications]);
 
-  const startMatching = useCallback(async () => {
+  const startMatching = useCallback(async (prefs) => {
     setIsMatching(true);
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    const result = await parallelService.startMatching(prefs);
     setIsMatching(false);
+
+    if (result.success && result.thread) {
+      setThreads((prev) => [...prev, result.thread]);
+      return { success: true, thread: result.thread };
+    }
+
+    // Fallback: simulate realistic matching with mock partners
+    await new Promise((resolve) => setTimeout(resolve, 3000 + Math.random() * 2000));
+
+    const candidates = parallelPartners.filter(
+      (p) => prefs.genderPref === 'any' || p.gender === prefs.genderPref
+    );
+
+    if (candidates.length > 0) {
+      const partner = candidates[Math.floor(Math.random() * candidates.length)];
+      const thread = {
+        id: `t${Date.now()}`,
+        partnerName: partner.name,
+        partnerAvatar: partner.avatar,
+        prefs: { role: prefs.role },
+        description: prefs.description || '',
+        messages: [],
+        status: 'active',
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      };
+      setThreads((prev) => [...prev, thread]);
+      return { success: true, thread };
+    }
+
     return { success: false };
   }, []);
 
@@ -78,14 +107,48 @@ function ParallelProvider({ children }) {
         t.id === threadId ? { ...t, messages: [...t.messages, userMsg] } : t
       )
     );
+
+    // Simulate partner reply after a short delay
+    const partnerMsg = {
+      id: Date.now() + 1,
+      fromPartner: true,
+      content: '',
+      timestamp: new Date().toISOString(),
+      read: false,
+    };
+
+    const replyDelay = 1000 + Math.random() * 3000;
+    setTimeout(() => {
+      const replies = [
+        'I hear you. Tell me more.',
+        'That takes a lot of courage to share.',
+        'I understand how you feel.',
+        'Thank you for trusting me with this.',
+        'You are not alone in this.',
+        'How does that make you feel?',
+        'I appreciate you opening up.',
+        'That is really powerful.',
+      ];
+      partnerMsg.content = replies[Math.floor(Math.random() * replies.length)];
+      setThreads((prev) =>
+        prev.map((t) =>
+          t.id === threadId ? { ...t, messages: [...t.messages, { ...partnerMsg }] } : t
+        )
+      );
+    }, replyDelay);
+
+    parallelService.addMessage(threadId, content);
   }, []);
 
   const closeThread = useCallback((threadId) => {
     setThreads((prev) =>
       prev.map((t) =>
-        t.id === threadId ? { ...t, status: 'expired', expiresAt: new Date().toISOString() } : t
+        t.id === threadId
+          ? { ...t, status: 'expired', expiresAt: new Date().toISOString() }
+          : t
       )
     );
+    parallelService.closeThread(threadId);
   }, []);
 
   const getThread = useCallback(
@@ -135,23 +198,35 @@ function ParallelProvider({ children }) {
     return thread;
   }, []);
 
-  const createListing = useCallback(({ userId, userName, role, description }) => {
-    const listing = {
-      id: `l${Date.now()}`,
-      userId,
-      userName,
-      role,
-      description,
-      status: 'open',
-      createdAt: new Date().toISOString(),
-    };
+  const createListing = useCallback(async ({ userId, userName, role, description }) => {
+    const result = await parallelService.createListing({ userName, role, description });
+    const listing = result.id
+      ? {
+          id: result.id,
+          userId,
+          userName,
+          role,
+          description,
+          status: 'open',
+          createdAt: new Date().toISOString(),
+        }
+      : {
+          id: `l${Date.now()}`,
+          userId,
+          userName,
+          role,
+          description: description || '',
+          status: 'open',
+          createdAt: new Date().toISOString(),
+        };
     setListings((prev) => [...prev, listing]);
     return listing;
   }, []);
 
-  const requestToJoin = useCallback(({ listingId, userId, userName }) => {
+  const requestToJoin = useCallback(async ({ listingId, userId, userName }) => {
+    const result = await parallelService.requestToJoin({ listingId, userName });
     const request = {
-      id: `r${Date.now()}`,
+      id: result.id || `r${Date.now()}`,
       listingId,
       userId,
       userName,
@@ -159,6 +234,7 @@ function ParallelProvider({ children }) {
       createdAt: new Date().toISOString(),
     };
     setRequests((prev) => [...prev, request]);
+
     const listing = listings.find((l) => l.id === listingId);
     if (listing) {
       const notif = {
@@ -178,25 +254,32 @@ function ParallelProvider({ children }) {
     return request;
   }, [listings]);
 
-  const approveRequest = useCallback((requestId) => {
+  const approveRequest = useCallback(async (requestId) => {
     const req = requests.find((r) => r.id === requestId);
     if (!req) return null;
     const listing = listings.find((l) => l.id === req.listingId);
     if (!listing) return null;
 
+    const result = await parallelService.approveRequest(requestId, listing);
+
     setRequests((prev) =>
-      prev.map((r) => r.id === requestId ? { ...r, status: 'approved' } : r)
+      prev.map((r) => (r.id === requestId ? { ...r, status: 'approved' } : r))
     );
     setListings((prev) =>
-      prev.map((l) => l.id === listing.id ? { ...l, status: 'matched' } : l)
+      prev.map((l) => (l.id === listing.id ? { ...l, status: 'matched' } : l))
     );
 
-    const thread = createThread({
-      partnerName: req.userName,
-      partnerAvatar: '🦋',
-      role: listing.role,
-      description: listing.description,
-    });
+    let thread;
+    if (result && result.id) {
+      thread = result;
+    } else {
+      thread = createThread({
+        partnerName: req.userName,
+        partnerAvatar: '🦋',
+        role: listing.role,
+        description: listing.description,
+      });
+    }
 
     const notif = {
       id: `n${Date.now()}`,
@@ -212,10 +295,11 @@ function ParallelProvider({ children }) {
     return thread;
   }, [requests, listings, createThread]);
 
-  const denyRequest = useCallback((requestId) => {
+  const denyRequest = useCallback(async (requestId) => {
     setRequests((prev) =>
-      prev.map((r) => r.id === requestId ? { ...r, status: 'denied' } : r)
+      prev.map((r) => (r.id === requestId ? { ...r, status: 'denied' } : r))
     );
+    await parallelService.denyRequest(requestId);
   }, []);
 
   const getOpenListings = useCallback(
@@ -246,6 +330,7 @@ function ParallelProvider({ children }) {
 
   const markNotificationsRead = useCallback(() => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    parallelService.markNotificationsRead();
   }, []);
 
   const unreadNotificationCount = useCallback(
