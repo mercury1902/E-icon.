@@ -30,6 +30,13 @@ export const TABLES = {
   ANONYMOUS_SESSIONS: 'anonymous_sessions',
   PSEUDONYM_POOL: 'pseudonym_pool',
   PROFILES: 'profiles',
+  HABIT_CATALOG: 'habit_catalog',
+  USER_HABITS: 'user_habits',
+  HABIT_LOG: 'habit_log',
+  PARALLEL_THREADS: 'parallel_threads',
+  PARALLEL_MESSAGES: 'parallel_messages',
+  PARALLEL_LISTINGS: 'parallel_listings',
+  PARALLEL_REQUESTS: 'parallel_requests',
 };
 
 export const AUTH_ERRORS = {
@@ -47,6 +54,19 @@ export function validateUsername(username) {
   if (!username || !username.trim()) return AUTH_ERRORS.USERNAME_REQUIRED;
   if (username.trim().length < 3) return AUTH_ERRORS.USERNAME_LENGTH;
   if (!/^[a-zA-Z0-9_-]+$/.test(username.trim())) return AUTH_ERRORS.USERNAME_FORMAT;
+  return null;
+}
+
+export function validateLoginIdentifier(input) {
+  if (!input || !input.trim()) return AUTH_ERRORS.USERNAME_REQUIRED;
+  const trimmed = input.trim();
+  const isEmailInput = trimmed.includes('@');
+  if (isEmailInput) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return 'Invalid email format';
+  } else {
+    if (trimmed.length < 3) return AUTH_ERRORS.USERNAME_LENGTH;
+    if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) return AUTH_ERRORS.USERNAME_FORMAT;
+  }
   return null;
 }
 

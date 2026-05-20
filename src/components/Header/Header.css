@@ -200,6 +200,43 @@
   box-shadow: 0 0 20px rgba(167, 139, 250, 0.3);
 }
 
+.header-auth-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.header-auth-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.header-auth-btn-primary {
+  background: linear-gradient(135deg, var(--primary), #7C5CFC);
+  color: #fff;
+  border-color: transparent;
+}
+
+.header-auth-btn-primary:hover {
+  opacity: 0.9;
+  color: #fff;
+}
+
+.admin-icon-btn {
+  text-decoration: none;
+}
+
 .hamburger-btn {
   display: none;
   width: 40px;

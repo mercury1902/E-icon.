@@ -1,8 +1,7 @@
 export const navItems = [
-  { id: 'home', label: 'Home', icon: '\u{1F3E0}' },
-  { id: 'explore', label: 'Explore', icon: '\u{1F50D}' },
-  { id: 'saved', label: 'Saved Posts', icon: '\u{1F516}' },
-  { id: 'activity', label: 'My Activity', icon: '\u{1F4CB}' },
+  { id: 'home', label: 'Home', icon: '\u{1F3E0}', path: '/' },
+  { id: 'stories', label: 'Stories', icon: '\u{1F4D6}', path: '/stories' },
+  { id: 'profile', label: 'Profile', icon: '\u{1F464}', path: '/profile' },
 ];
 
 export const trendingTags = [

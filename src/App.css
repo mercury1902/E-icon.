@@ -1,3 +1,13 @@
+@import './features/shared/nav.css';
+@import './features/shared/modal.css';
+@import './features/feed/feed.css';
+@import './features/stories/story.css';
+@import './features/stories/create.css';
+@import './features/profile/profile.css';
+@import './features/habits/habits.css';
+@import './features/wellbeing/wellbeing.css';
+@import './features/parallel/parallel.css';
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -27,6 +37,18 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
   --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
   --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Feature CSS variable compatibility layer */
+  --bg: var(--bg-card);
+  --bg-alt: #0F172A;
+  --code-bg: var(--bg-card);
+  --text-h: var(--text);
+  --accent: var(--primary);
+  --accent-bg: var(--primary-dim);
+  --accent-border: rgba(167, 139, 250, 0.3);
+  --social-bg: rgba(167, 139, 250, 0.06);
+  --sans: var(--font);
+  --heading: var(--font);
 }
 
 html {
@@ -271,9 +293,10 @@ body {
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-muted) !important;
   cursor: pointer;
   font-size: 10px;
+  text-decoration: none !important;
   transition: all var(--transition);
   -webkit-tap-highlight-color: transparent;
 }
