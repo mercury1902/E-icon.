@@ -1,0 +1,366 @@
+/* ─── Breathing Exercise ─── */
+
+.breathing-exercise {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.breathing-exercise.active {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.breathing-exercise-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.breathing-exercise-icon {
+  font-size: 32px;
+}
+
+.breathing-exercise-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.breathing-exercise-start {
+  padding: 10px 32px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: opacity 0.2s;
+}
+
+.breathing-exercise-start:hover {
+  opacity: 0.9;
+}
+
+.breathing-exercise-active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding: 28px 20px;
+}
+
+.breathing-exercise-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+}
+
+.breathing-exercise-close:hover {
+  color: var(--text-h);
+  background: var(--code-bg);
+}
+
+.breathing-exercise-circles {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 130px;
+  height: 130px;
+}
+
+.breathing-exercise-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  animation: breathe-pulse 19s linear infinite;
+}
+
+@keyframes breathe-pulse {
+  0%, 100% { transform: scale(0.8); opacity: 0.3; }
+  21% { transform: scale(2); opacity: 0.6; }
+  57.9% { transform: scale(2); opacity: 0.6; }
+  58% { transform: scale(2); opacity: 0.6; }
+  100% { transform: scale(0.8); opacity: 0.3; }
+}
+
+.breathing-exercise-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  z-index: 1;
+}
+
+.breathing-exercise-phase-text {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+  padding: 0 6px;
+}
+
+/* ─── Daily Affirmation ─── */
+
+.daily-affirmation {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.daily-affirmation-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.daily-affirmation-icon {
+  font-size: 18px;
+}
+
+.daily-affirmation-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--text);
+}
+
+.daily-affirmation-card {
+  position: relative;
+  padding: 16px 12px;
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent-bg);
+}
+
+.daily-affirmation-quote {
+  position: absolute;
+  top: -4px;
+  left: 8px;
+  font-size: 32px;
+  color: var(--accent);
+  line-height: 1;
+  opacity: 0.3;
+  font-family: Georgia, serif;
+}
+
+.daily-affirmation-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-h);
+  font-style: italic;
+}
+
+.daily-affirmation-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.daily-affirmation-like {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.daily-affirmation-like:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.daily-affirmation-like.liked {
+  color: #ef4444;
+}
+
+.daily-affirmation-next {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--accent);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.daily-affirmation-next:hover {
+  background: var(--accent-bg);
+}
+
+/* ─── Mood Calendar ─── */
+
+.mood-calendar {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.mood-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.mood-calendar-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.mood-calendar-nav {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.mood-calendar-nav:hover {
+  color: var(--text-h);
+  background: var(--code-bg);
+}
+
+.mood-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.mood-calendar-weekday {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  padding: 6px 0;
+  text-transform: uppercase;
+}
+
+.mood-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.mood-calendar-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 8px;
+  min-height: 48px;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.mood-calendar-cell.empty {
+  background: none;
+}
+
+.mood-calendar-cell.today {
+  background: var(--code-bg);
+  font-weight: 600;
+}
+
+.mood-calendar-cell.logged {
+  background: color-mix(in srgb, var(--mood-color) 12%, transparent);
+}
+
+.mood-calendar-day {
+  font-size: 15px;
+  color: var(--text-h);
+}
+
+.mood-calendar-dot {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.mood-calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.mood-calendar-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.mood-calendar-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mood-calendar-legend-label {
+  font-weight: 500;
+}
+
+.mood-calendar-legend-count {
+  color: var(--text);
+  font-weight: 400;
+}
+
+/* ─── Profile Mood Tab ─── */
+
+.profile-mood {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}

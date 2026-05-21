@@ -3,7 +3,7 @@ param(
   [string]$SupabaseUrl = "https://cnzfmrivwohjzeoephug.supabase.co",
 
   [Parameter(Mandatory = $false)]
-  [string]$ServiceRoleKey = "YOUR_SUPABASE_SERVICE_ROLE_KEY"
+  [string]$ServiceRoleKey = $env:SUPABASE_SERVICE_ROLE_KEY
 )
 
 <#
