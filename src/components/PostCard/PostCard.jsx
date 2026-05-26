@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { toggleReaction, getReactionsForPost, getCommentsForPost, addComment } from '../../services/posts';
 import { generatePseudonym, getAvatarColor, getInitials } from '../../utils/pseudonyms';
 import './PostCard.css';
+import { FacebookEmoji, parseEmojisToReact } from '../../utils/emojiHelper';
 
 const emojis = ['\u{1F44D}', '\u{2764}\u{FE0F}', '\u{1F60A}', '\u{1F622}'];
 const tagVariants = ['primary', 'secondary', 'neutral'];
@@ -101,10 +102,12 @@ export default function PostCard({ post, index }) {
           <span aria-hidden="true">
             {(post.post_pseudonym || '?').charAt(0).toUpperCase()}
           </span>
-          <span className="shield-overlay" aria-hidden="true">{'\u{1F6E1}'}</span>
+          <span className="shield-overlay" aria-hidden="true">
+            <FacebookEmoji emoji={'\u{1F6E1}'} size={10} inline={true} />
+          </span>
         </div>
         <div className="post-meta">
-          <span className="post-author">{post.post_pseudonym || 'Anonymous'}</span>
+          <span className="post-author">{parseEmojisToReact(post.post_pseudonym || 'Anonymous', 16)}</span>
           <span className="post-time">
             {formatDate(post.created_at)} &middot; <span className="post-anon-label">anonymous</span>
           </span>
@@ -124,7 +127,7 @@ export default function PostCard({ post, index }) {
         </div>
       )}
 
-      <p className="post-content">{post.content}</p>
+      <p className="post-content">{parseEmojisToReact(post.content, 18)}</p>
 
       <div className="post-actions">
         {emojis.map((emoji) => {
@@ -137,7 +140,9 @@ export default function PostCard({ post, index }) {
               onClick={() => handleReact(emoji)}
               aria-label={`React with ${emoji}`}
             >
-              <span aria-hidden="true">{emoji}</span>
+              <span aria-hidden="true">
+                <FacebookEmoji emoji={emoji} size={20} inline={true} />
+              </span>
               <span className="count">{count > 0 ? count : ''}</span>
             </button>
           );
@@ -148,7 +153,9 @@ export default function PostCard({ post, index }) {
           onClick={toggleComments}
           aria-label={`Comments: ${commentCount}`}
         >
-          <span aria-hidden="true">{'\u{1F4AC}'}</span>
+          <span aria-hidden="true">
+            <FacebookEmoji emoji={'\u{1F4AC}'} size={16} inline={true} />
+          </span>
           <span>{commentCount > 0 ? commentCount : ''}</span>
         </button>
       </div>
@@ -169,10 +176,10 @@ export default function PostCard({ post, index }) {
                 </div>
                 <div className="comment-body">
                   <div className="comment-header">
-                    <span className="comment-author">{c.comment_pseudonym || 'Anonymous'}</span>
+                    <span className="comment-author">{parseEmojisToReact(c.comment_pseudonym || 'Anonymous', 14)}</span>
                     <span className="comment-time">{formatDate(c.created_at)}</span>
                   </div>
-                  <p className="comment-content">{c.content}</p>
+                  <p className="comment-content">{parseEmojisToReact(c.content, 16)}</p>
                 </div>
               </div>
             ))}

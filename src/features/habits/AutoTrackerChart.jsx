@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getTrackingSummary } from './autoTracker';
+import { FacebookEmoji } from '../../utils/emojiHelper';
 
 function AutoTrackerChart() {
   const [data, setData] = useState(null);
@@ -42,7 +43,9 @@ function AutoTrackerChart() {
       {newBadgeAlert && (
         <div className="auto-tracker-new-badge">
           {newBadgeAlert.map(b => (
-            <span key={b.id}>{b.icon} {b.name} unlocked!</span>
+            <span key={b.id}>
+              <FacebookEmoji emoji={b.icon} size={16} /> {b.name} unlocked!
+            </span>
           ))}
         </div>
       )}
@@ -106,13 +109,17 @@ function AutoTrackerChart() {
         <div className="auto-tracker-badges-list">
           {earnedBadges.map(b => (
             <div key={b.id} className="auto-tracker-badge earned">
-              <span className="auto-tracker-badge-icon">{b.icon}</span>
+              <span className="auto-tracker-badge-icon">
+                <FacebookEmoji emoji={b.icon} size={24} />
+              </span>
               <span className="auto-tracker-badge-name">{b.name}</span>
             </div>
           ))}
           {lockedBadges.map(b => (
             <div key={b.id} className="auto-tracker-badge locked">
-              <span className="auto-tracker-badge-icon">🔒</span>
+              <span className="auto-tracker-badge-icon">
+                <FacebookEmoji emoji="🔒" size={24} />
+              </span>
               <span className="auto-tracker-badge-name">{b.desc}</span>
             </div>
           ))}

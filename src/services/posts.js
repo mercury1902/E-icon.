@@ -96,7 +96,7 @@ export async function getCommentsForPost(postId) {
   return data || [];
 }
 
-export async function addComment(postId, content, pseudonym, avatarColor) {
+export async function addComment(postId, content, pseudonym, avatarColor, parentId = null) {
   const { data, error } = await supabase
     .from(TABLES.COMMENTS)
     .insert({
@@ -104,6 +104,7 @@ export async function addComment(postId, content, pseudonym, avatarColor) {
       comment_pseudonym: pseudonym,
       avatar_color: avatarColor,
       content,
+      parent_id: parentId,
     })
     .select()
     .single();

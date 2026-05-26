@@ -7,6 +7,7 @@ import {
 import MoodCheckin from '../../features/mood/MoodCheckin';
 import HabitCheckin from '../../features/habits/HabitCheckin';
 import './LeftSidebar.css';
+import { FacebookEmoji } from '../../utils/emojiHelper';
 
 const emotionLabels = {
   exhausted: 'Exhausted',
@@ -38,7 +39,7 @@ export default function LeftSidebar({
                 aria-current={activeNav === item.id ? 'page' : undefined}
               >
                 <span className="nav-icon" aria-hidden="true">
-                  {item.icon}
+                  <FacebookEmoji emoji={item.icon} size={18} inline={true} />
                 </span>
                 <span className="nav-label">{item.label}</span>
               </button>
@@ -118,7 +119,9 @@ export default function LeftSidebar({
             showToast?.('Community guidelines — be kind, stay safe.');
           }}
         >
-          <span aria-hidden="true">{'\u{1F6E1}\u{FE0F}'}</span>
+          <span aria-hidden="true">
+            <FacebookEmoji emoji={'\u{1F6E1}\u{FE0F}'} size={16} inline={true} />
+          </span>
           Community Guidelines
         </a>
         <p className="guidelines-sub">

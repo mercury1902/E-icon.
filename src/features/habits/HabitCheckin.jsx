@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { getCurrentStreak } from '../shared/streak';
 import habitIcons from './habitIcons';
 import HabitManager from './HabitManager';
+import { FacebookEmoji } from '../../utils/emojiHelper';
 
 function HabitCheckin() {
   const { userHabits, habitLog, toggleHabit, getHabitCompletions } = useApp();
@@ -91,7 +92,11 @@ function HabitCheckin() {
       <div className="habit-checkin-header">
         <div className="habit-checkin-title-row">
           <span className="habit-checkin-title">Today's Habits</span>
-          {allDone && <span className="habit-checkin-celebration">🎉</span>}
+          {allDone && (
+            <span className="habit-checkin-celebration">
+              <FacebookEmoji emoji="🎉" size={18} />
+            </span>
+          )}
         </div>
         <div className="habit-checkin-actions">
           <span className="habit-checkin-count">{completed.length}/{userHabits.length}</span>
@@ -161,11 +166,15 @@ function HabitCheckin() {
                         className={`habit-checkin-item ${done ? 'done' : ''} ${justChecked === h.id && done ? 'just-checked' : ''}`}
                         onClick={() => handleToggle(h.id)}
                       >
-                        <span className="habit-checkin-icon">{habitIcons[h.id] || h.icon || '⭐'}</span>
+                        <span className="habit-checkin-icon">
+                          {habitIcons[h.id] || <FacebookEmoji emoji={h.icon || '⭐'} size={20} />}
+                        </span>
                         <span className="habit-checkin-name">{h.name}</span>
                         {streak > 0 && (
                           <span className="habit-checkin-streak">
-                            <span className="habit-checkin-streak-icon">🔥</span>
+                            <span className="habit-checkin-streak-icon">
+                              <FacebookEmoji emoji="🔥" size={14} />
+                            </span>
                             {streak}
                           </span>
                         )}

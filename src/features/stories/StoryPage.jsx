@@ -20,7 +20,7 @@ function StoryPage() {
   const [chatThreadId, setChatThreadId] = useState(null);
   const { id } = useParams();
   const { stories, userReactions, topics } = useApp();
-  const story = stories.find((s) => s.id === Number(id));
+  const story = stories.find((s) => s.id === id);
 
   if (!story) {
     return (

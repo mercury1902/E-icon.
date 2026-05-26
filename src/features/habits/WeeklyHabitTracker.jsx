@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { getWeeklyStreak } from '../shared/streak';
+import { FacebookEmoji } from '../../utils/emojiHelper';
 
 const FREQUENCIES = [
   { value: 'daily', label: 'Daily' },
@@ -237,7 +238,9 @@ function WeeklyHabitTracker() {
 
       {streak > 0 && (
         <div className="weekly-tracker-streak">
-          <span className="weekly-tracker-streak-icon">🔥</span>
+          <span className="weekly-tracker-streak-icon">
+            <FacebookEmoji emoji="🔥" size={16} />
+          </span>
           <span>{streak} day streak</span>
         </div>
       )}
@@ -277,7 +280,9 @@ function WeeklyHabitTracker() {
                 className={`weekly-tracker-item ${done ? 'done' : ''} ${justChecked === h.id && done ? 'just-checked' : ''}`}
                 onClick={() => handleToggle(h.id)}
               >
-                <span className="weekly-tracker-item-emoji">{h.emoji}</span>
+                <span className="weekly-tracker-item-emoji">
+                  <FacebookEmoji emoji={h.emoji} size={16} />
+                </span>
                 <span className="weekly-tracker-item-name">{h.name}</span>
                 <span className={`weekly-tracker-item-check ${done ? 'checked' : ''}`}>
                   {done && (

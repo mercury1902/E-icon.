@@ -1,38 +1,77 @@
 import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useParallel } from '../parallel/ParallelContext';
+import { useAuth } from '../../context/AuthContext';
+import { updateProfile } from '../../services/auth';
 import ProfileHeader from './ProfileHeader';
+import { FacebookEmoji } from '../../utils/emojiHelper';
 import StoryCard from '../feed/StoryCard';
 import HabitProgress from '../habits/HabitProgress';
 import MoodCalendar from '../mood/MoodCalendar';
 import ParallelHistory from '../parallel/ParallelHistory';
 
 function ProfilePage() {
-  const { user, setUser, getUserStories, getSavedStoriesList, badgeDefs } = useApp();
+  const auth = useAuth();
+  const { user: mockUser, setUser, getUserStories, getSavedStoriesList, badgeDefs } = useApp();
   const { getConnectionCount } = useParallel();
   const [tab, setTab] = useState('my');
+
+  const currentUser = auth.profile ? {
+    username: auth.profile.username,
+    name: auth.profile.nickname || auth.profile.username,
+    bio: auth.profile.bio || '',
+    location: auth.profile.location || '',
+    website: auth.profile.website || '',
+    avatar: auth.profile.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+    coverImage: auth.profile.cover_image || 'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=800&q=80',
+    joinedDate: new Date(auth.profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+    storyCount: mockUser.storyCount,
+    totalHearts: mockUser.totalHearts,
+    totalRelates: mockUser.totalRelates,
+    peopleHelped: mockUser.peopleHelped,
+    badges: auth.profile.badges || [],
+  } : mockUser;
+
+  const handleSaveProfile = async (form) => {
+    if (auth.user) {
+      try {
+        await updateProfile({
+          nickname: form.name,
+          bio: form.bio,
+          location: form.location,
+          website: form.website,
+        });
+        await auth.refresh();
+      } catch (err) {
+        console.error('Error updating profile in Supabase:', err);
+      }
+    } else {
+      setUser(form);
+    }
+  };
+
   const myStories = getUserStories();
   const savedStories = getSavedStoriesList();
 
   return (
     <div className="profile-page">
-      <ProfileHeader user={user} onSave={setUser} />
+      <ProfileHeader user={currentUser} onSave={handleSaveProfile} />
       <div className="profile-body">
         <div className="profile-stats">
           <div className="stat-card">
-            <span className="stat-value">{user.storyCount}</span>
+            <span className="stat-value">{currentUser.storyCount}</span>
             <span className="stat-label">Stories</span>
           </div>
           <div className="stat-card">
-            <span className="stat-value">{user.totalHearts}</span>
+            <span className="stat-value">{currentUser.totalHearts}</span>
             <span className="stat-label">Hearts</span>
           </div>
           <div className="stat-card">
-            <span className="stat-value">{user.totalRelates}</span>
+            <span className="stat-value">{currentUser.totalRelates}</span>
             <span className="stat-label">Relates</span>
           </div>
           <div className="stat-card">
-            <span className="stat-value">{user.peopleHelped}</span>
+            <span className="stat-value">{currentUser.peopleHelped}</span>
             <span className="stat-label">Helped</span>
           </div>
           <div className="stat-card">
@@ -42,21 +81,23 @@ function ProfilePage() {
         </div>
 
         <div className="profile-badges">
-          <h2>Badges <span className="count">{user.badges.length} / {badgeDefs.length}</span></h2>
+          <h2>Badges <span className="count">{currentUser.badges.length} / {badgeDefs.length}</span></h2>
           <div className="badges-grid">
             {badgeDefs
-              .filter((badge) => user.badges.includes(badge.id))
+              .filter((badge) => currentUser.badges.includes(badge.id))
               .map((badge) => (
                 <div key={badge.id} className="badge-card earned">
-                  <span className="badge-icon">{badge.icon}</span>
+                  <span className="badge-icon">
+                    <FacebookEmoji emoji={badge.icon} size={24} />
+                  </span>
                   <span className="badge-name">{badge.name}</span>
                   <span className="badge-desc">{badge.description}</span>
                 </div>
               ))}
           </div>
-          {badgeDefs.length - user.badges.length > 0 && (
+          {badgeDefs.length - currentUser.badges.length > 0 && (
             <p className="badges-hidden-hint">
-              {badgeDefs.length - user.badges.length} hidden {badgeDefs.length - user.badges.length === 1 ? 'achievement' : 'achievements'} yet to discover
+              {badgeDefs.length - currentUser.badges.length} hidden {badgeDefs.length - currentUser.badges.length === 1 ? 'achievement' : 'achievements'} yet to discover
             </p>
           )}
         </div>

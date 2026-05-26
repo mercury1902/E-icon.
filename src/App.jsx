@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ParallelProvider } from './features/parallel/ParallelContext';
+import { FacebookEmoji } from './utils/emojiHelper';
 import { ProtectedRoute } from './components/Auth/ProtectedRoute';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
@@ -124,7 +125,7 @@ function HomePage() {
         <main className="main-content" id="main-content">
           <div className="privacy-banner animate-in" role="status">
             <span className="shield-icon" aria-hidden="true">
-              🛡️
+              <FacebookEmoji emoji="🛡️" size={20} inline={true} />
             </span>
             <p>
               <strong>Your identity is protected.</strong> No personal data is
@@ -163,7 +164,7 @@ function HomePage() {
             aria-current={activeNav === item.id ? 'page' : undefined}
           >
             <span className="bottom-nav-icon" aria-hidden="true">
-              {item.icon}
+              <FacebookEmoji emoji={item.icon} size={18} inline={true} />
             </span>
             <span className="bottom-nav-label">{item.label}</span>
           </Link>
@@ -176,7 +177,7 @@ function HomePage() {
         aria-label="Open community sidebar"
         title="Community"
       >
-        💬
+        <FacebookEmoji emoji="💬" size={24} inline={true} />
       </button>
 
       <Toast message={toast} />
@@ -193,7 +194,6 @@ function FeatureRoutes() {
     <AppProvider>
       <ParallelProvider>
         <Navbar
-          onCreateClick={() => setShowCreateStory(true)}
           onParallelClick={() => setShowParallelPrefs(true)}
           onBoardClick={() => setShowParallelBoard(true)}
         />

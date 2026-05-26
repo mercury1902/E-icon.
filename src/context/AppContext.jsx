@@ -1,8 +1,10 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { user as initialUser, stories as initialStories, badges as badgeDefs, topics, prompts, affirmations } from '../data/mockData';
 import { saveMoodCheckin, getMoodHistory } from '../services/mood';
 import * as habitsService from '../services/habits';
 import { habitCatalog } from '../data/mockData';
+import { supabase } from '../lib/supabaseClient';
+import * as postsService from '../services/posts';
 
 const MIGRATED_ICONS = {
   walk: '🚶', exercise: '🏋️', meditate: '🧘', sleep: '😴', water: '💧',
@@ -14,9 +16,17 @@ const AppContext = createContext();
 
 function AppProvider({ children }) {
   const [user, setUser] = useState(initialUser);
-  const [stories, setStories] = useState(initialStories);
+  const [stories, setStories] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(null);
-  const [userReactions, setUserReactions] = useState({});
+  const [userReactions, setUserReactions] = useState(() => {
+    const saved = localStorage.getItem('userReactions');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  useEffect(() => {
+    localStorage.setItem('userReactions', JSON.stringify(userReactions));
+  }, [userReactions]);
+
   const [savedStories, setSavedStories] = useState(new Set());
   const [hiddenStories, setHiddenStories] = useState(new Set());
   const [currentMood, setCurrentMood] = useState(() => localStorage.getItem('mood') || null);
@@ -178,20 +188,151 @@ function AppProvider({ children }) {
     });
   }
 
+  const fetchStories = useCallback(async () => {
+    try {
+      const { data: dbPosts, error: postsErr } = await supabase
+        .from('posts')
+        .select('*')
+        .is('deleted_at', null)
+        .eq('is_hidden', false)
+        .order('created_at', { ascending: false });
+
+      if (postsErr) throw postsErr;
+      if (!dbPosts || dbPosts.length === 0) {
+        setStories([]);
+        return;
+      }
+
+      const postIds = dbPosts.map((p) => p.id);
+
+      // Fetch comments in bulk
+      const { data: dbComments, error: commentsErr } = await supabase
+        .from('comments')
+        .select('*')
+        .in('post_id', postIds)
+        .is('deleted_at', null)
+        .eq('is_hidden', false)
+        .order('created_at', { ascending: true });
+
+      if (commentsErr) throw commentsErr;
+
+      // Fetch reactions in bulk
+      const { data: dbReactions, error: reactionsErr } = await supabase
+        .from('reactions')
+        .select('id, post_id, emoji')
+        .in('post_id', postIds);
+
+      if (reactionsErr) throw reactionsErr;
+
+      // Map comments to post_id
+      const commentsByPost = {};
+      dbComments.forEach((c) => {
+        if (!commentsByPost[c.post_id]) {
+          commentsByPost[c.post_id] = [];
+        }
+        let avatar = '🦊';
+        if (c.comment_pseudonym && c.comment_pseudonym.includes(' ')) {
+          avatar = c.comment_pseudonym.split(' ').pop();
+        }
+        commentsByPost[c.post_id].push({
+          id: c.id,
+          parentId: c.parent_id,
+          avatar: avatar,
+          pseudonym: c.comment_pseudonym || 'Anonymous',
+          content: c.content,
+          timestamp: c.created_at,
+          reports: 0
+        });
+      });
+
+      // Aggregate reactions by post_id and emoji type
+      const reactionsByPost = {};
+      dbReactions.forEach((r) => {
+        if (!reactionsByPost[r.post_id]) {
+          reactionsByPost[r.post_id] = { heart: 0, relate: 0, fire: 0 };
+        }
+        const key = r.emoji === '❤️' ? 'heart' : r.emoji === '😊' ? 'relate' : r.emoji === '🔥' ? 'fire' : null;
+        if (key) {
+          reactionsByPost[r.post_id][key]++;
+        }
+      });
+
+      // Map DB posts to stories
+      const mappedStories = dbPosts.map((post) => {
+        const topicNames = ['confession', 'vent', 'advice', 'wholesome', 'story', 'question'];
+        let topicId = 5;
+        if (post.tags && post.tags.length > 0) {
+          const matchIndex = topicNames.findIndex((name) => post.tags.includes(name.toLowerCase()));
+          if (matchIndex !== -1) {
+            topicId = matchIndex + 1;
+          }
+        }
+
+        let contentWarning = null;
+        if (post.tags && post.tags.length > 0) {
+          const cwTag = post.tags.find(tag => !topicNames.includes(tag.toLowerCase()));
+          if (cwTag) {
+            contentWarning = cwTag;
+          }
+        }
+
+        return {
+          id: post.id,
+          pseudonym: post.post_pseudonym,
+          avatarColor: post.avatar_color,
+          content: post.content,
+          topicId: topicId,
+          timestamp: post.created_at,
+          contentWarning: contentWarning,
+          reactions: reactionsByPost[post.id] || { heart: 0, relate: 0, fire: 0 },
+          reports: 0,
+          comments: commentsByPost[post.id] || [],
+          isMine: false
+        };
+      });
+
+      setStories(mappedStories);
+    } catch (err) {
+      console.error('Error fetching stories:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStories();
+  }, [fetchStories]);
+
   function resetWeek() {
     const monday = getMonday(new Date());
     saveWeeklyHabits({ weekStart: monday, habits: [], log: {} });
   }
 
-  function addStory(story) {
-    setStories((prev) => [story, ...prev]);
-    setUser((prev) => ({
-      ...prev,
-      storyCount: prev.storyCount + 1,
-    }));
-  }
+  const addStory = useCallback(async (storyData) => {
+    try {
+      const topic = topics.find((t) => t.id === storyData.topicId);
+      const tags = [topic ? topic.name.toLowerCase() : 'story'];
+      if (storyData.ephemeral) {
+        tags.push('ephemeral');
+      }
 
-  function reactToStory(storyId, type) {
+      await postsService.createPost({
+        content: storyData.content,
+        tags: tags,
+        postPseudonym: storyData.pseudonym || 'Anonymous',
+        avatarColor: '#A78BFA',
+      });
+
+      await fetchStories();
+
+      setUser((prev) => ({
+        ...prev,
+        storyCount: prev.storyCount + 1,
+      }));
+    } catch (err) {
+      console.error('Error adding story:', err);
+    }
+  }, [topics, fetchStories]);
+
+  const reactToStory = useCallback(async (storyId, type) => {
     const alreadyReacted = userReactions[storyId]?.[type] ?? false;
 
     setUserReactions((prev) => ({
@@ -209,45 +350,54 @@ function AppProvider({ children }) {
               ...s,
               reactions: {
                 ...s.reactions,
-                [type]: s.reactions[type] + (alreadyReacted ? -1 : 1),
+                [type]: Math.max(0, s.reactions[type] + (alreadyReacted ? -1 : 1)),
               },
             }
           : s
       )
     );
-  }
 
-  function addComment(storyId, content, avatar) {
-    const comment = {
-      id: Date.now(),
-      parentId: null,
-      avatar,
-      content,
-      timestamp: new Date().toISOString(),
-      reports: 0,
-    };
-    setStories((prev) =>
-      prev.map((s) =>
-        s.id === storyId ? { ...s, comments: [...s.comments, comment] } : s
-      )
-    );
-  }
+    try {
+      const emojiMap = {
+        heart: '❤️',
+        relate: '😊',
+        fire: '🔥'
+      };
+      const emoji = emojiMap[type] || '❤️';
+      await postsService.toggleReaction(storyId, emoji);
+      await fetchStories();
+    } catch (err) {
+      console.error('Error toggling reaction:', err);
+      setUserReactions((prev) => ({
+        ...prev,
+        [storyId]: {
+          ...prev[storyId],
+          [type]: alreadyReacted,
+        },
+      }));
+      await fetchStories();
+    }
+  }, [userReactions, fetchStories]);
 
-  function addReply(storyId, parentCommentId, content, avatar) {
-    const reply = {
-      id: Date.now(),
-      parentId: parentCommentId,
-      avatar,
-      content,
-      timestamp: new Date().toISOString(),
-      reports: 0,
-    };
-    setStories((prev) =>
-      prev.map((s) =>
-        s.id === storyId ? { ...s, comments: [...s.comments, reply] } : s
-      )
-    );
-  }
+  const addComment = useCallback(async (storyId, content, avatar) => {
+    try {
+      const commentPseudonym = `Anonymous ${avatar || '🦊'}`;
+      await postsService.addComment(storyId, content, commentPseudonym, '#A78BFA');
+      await fetchStories();
+    } catch (err) {
+      console.error('Error adding comment:', err);
+    }
+  }, [fetchStories]);
+
+  const addReply = useCallback(async (storyId, parentCommentId, content, avatar) => {
+    try {
+      const replyPseudonym = `Anonymous ${avatar || '🦊'}`;
+      await postsService.addComment(storyId, content, replyPseudonym, '#A78BFA', parentCommentId);
+      await fetchStories();
+    } catch (err) {
+      console.error('Error adding reply:', err);
+    }
+  }, [fetchStories]);
 
   function toggleSave(storyId) {
     setSavedStories((prev) => {
@@ -261,15 +411,28 @@ function AppProvider({ children }) {
     });
   }
 
-  function reportStory(storyId) {
+  const reportStory = useCallback(async (storyId) => {
     setStories((prev) =>
       prev.map((s) =>
         s.id === storyId ? { ...s, reports: s.reports + 1 } : s
       )
     );
-  }
 
-  function reportComment(storyId, commentId) {
+    try {
+      await supabase
+        .from('content_reports')
+        .insert({
+          target_type: 'post',
+          target_id: storyId,
+          reason: 'Inappropriate content',
+          session_token_hash: 'anon_report'
+        });
+    } catch (err) {
+      console.error('Error reporting story:', err);
+    }
+  }, []);
+
+  const reportComment = useCallback(async (storyId, commentId) => {
     setStories((prev) =>
       prev.map((s) =>
         s.id === storyId
@@ -282,16 +445,39 @@ function AppProvider({ children }) {
           : s
       )
     );
-  }
 
-  function deleteStory(storyId) {
+    try {
+      await supabase
+        .from('content_reports')
+        .insert({
+          target_type: 'comment',
+          target_id: commentId,
+          reason: 'Inappropriate content',
+          session_token_hash: 'anon_report'
+        });
+    } catch (err) {
+      console.error('Error reporting comment:', err);
+    }
+  }, []);
+
+  const deleteStory = useCallback(async (storyId) => {
     setStories((prev) => prev.filter((s) => s.id !== storyId));
     setSavedStories((prev) => {
       const next = new Set(prev);
       next.delete(storyId);
       return next;
     });
-  }
+
+    try {
+      await supabase
+        .from('posts')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', storyId);
+    } catch (err) {
+      console.error('Error deleting story:', err);
+      await fetchStories();
+    }
+  }, [fetchStories]);
 
   function hideStory(storyId) {
     setHiddenStories((prev) => {
@@ -301,13 +487,25 @@ function AppProvider({ children }) {
     });
   }
 
-  function editStory(storyId, updates) {
+  const editStory = useCallback(async (storyId, updates) => {
     setStories((prev) =>
       prev.map((s) =>
         s.id === storyId ? { ...s, ...updates } : s
       )
     );
-  }
+
+    try {
+      await supabase
+        .from('posts')
+        .update({
+          content: updates.content,
+        })
+        .eq('id', storyId);
+    } catch (err) {
+      console.error('Error editing story:', err);
+      await fetchStories();
+    }
+  }, [fetchStories]);
 
   function getSavedStoriesList() {
     return stories.filter((s) => savedStories.has(s.id));

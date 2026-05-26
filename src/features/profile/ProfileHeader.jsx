@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FacebookEmoji } from '../../utils/emojiHelper';
 
 function ProfileHeader({ user, onSave }) {
   const [editing, setEditing] = useState(false);
@@ -49,7 +50,9 @@ function ProfileHeader({ user, onSave }) {
                 <label>Website</label>
                 <input name="website" value={form.website} onChange={handleChange} />
               </div>
-              <span>📅 Joined {user.joinedDate}</span>
+              <span>
+                <FacebookEmoji emoji="📅" size={14} /> Joined {user.joinedDate}
+              </span>
             </div>
           </div>
           <div className="edit-actions">
@@ -73,9 +76,15 @@ function ProfileHeader({ user, onSave }) {
           <p className="username">@{user.username}</p>
           <p className="bio">{user.bio}</p>
           <div className="meta">
-            <span>📍 {user.location}</span>
-            <span>🔗 <a href={user.website} target="_blank" rel="noopener noreferrer">{user.website}</a></span>
-            <span>📅 Joined {user.joinedDate}</span>
+            <span>
+              <FacebookEmoji emoji="📍" size={14} /> {user.location}
+            </span>
+            <span>
+              <FacebookEmoji emoji="🔗" size={14} /> <a href={user.website} target="_blank" rel="noopener noreferrer">{user.website}</a>
+            </span>
+            <span>
+              <FacebookEmoji emoji="📅" size={14} /> Joined {user.joinedDate}
+            </span>
           </div>
         </div>
         <button className="edit-btn" onClick={startEdit}>Edit Profile</button>

@@ -357,7 +357,7 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px 24px;
+  padding: 14px 17px;
   transition: all 0.2s;
 }
 
@@ -369,7 +369,7 @@
 .mood-trigger {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
   background: none;
   border: none;
@@ -380,14 +380,14 @@
 }
 
 .mood-current-label {
-  font-size: 17px;
+  font-size: 14px;
   color: var(--text-h);
   font-weight: 500;
   flex: 1;
 }
 
 .mood-change-hint {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--text);
 }
 
@@ -395,11 +395,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .mood-label {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-h);
 }
@@ -407,17 +407,17 @@
 .mood-header-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .mood-clear {
   background: none;
   border: none;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text);
   cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 4px 8px;
+  border-radius: 5px;
   font-family: var(--sans);
 }
 
@@ -432,10 +432,10 @@
   border: none;
   cursor: pointer;
   color: var(--text);
-  font-size: 18px;
+  font-size: 14px;
   line-height: 1;
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 4px 8px;
+  border-radius: 5px;
   font-family: var(--sans);
 }
 
@@ -459,7 +459,7 @@
 .mood-wheel {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
   justify-content: center;
 }
 
@@ -467,14 +467,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 20px 24px;
-  border-radius: 14px;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--bg);
   cursor: pointer;
   transition: all 0.15s;
-  min-width: 100px;
+  min-width: 72px;
 }
 
 .mood-option:hover {
@@ -496,7 +496,7 @@
 }
 
 .mood-label-text {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--text);
   white-space: nowrap;
 }

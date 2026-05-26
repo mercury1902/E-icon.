@@ -26,7 +26,7 @@ function SunIcon() {
   );
 }
 
-function Navbar({ onCreateClick, onParallelClick, onBoardClick }) {
+function Navbar({ onParallelClick, onBoardClick }) {
   const location = useLocation();
   const { dark, toggleTheme } = useTheme();
   const { user, profile, isAdmin, signOut } = useAuth();
@@ -43,9 +43,6 @@ function Navbar({ onCreateClick, onParallelClick, onBoardClick }) {
         </button>
         <button className="nav-link" onClick={onBoardClick}>
           Board
-        </button>
-        <button className="nav-link create-btn" onClick={onCreateClick}>
-          + Write Story
         </button>
 
         {user ? (
@@ -67,7 +64,6 @@ function Navbar({ onCreateClick, onParallelClick, onBoardClick }) {
         ) : (
           <>
             <Link to="/login" className="nav-link auth-link">Sign In</Link>
-            <Link to="/signup" className="nav-link auth-link auth-link-primary">Join</Link>
           </>
         )}
 

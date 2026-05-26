@@ -53,11 +53,6 @@
   color: var(--accent) !important;
 }
 
-.create-btn {
-  color: var(--accent) !important;
-  font-weight: 600;
-}
-
 .theme-btn {
   font-size: 18px;
   padding: 8px 10px;

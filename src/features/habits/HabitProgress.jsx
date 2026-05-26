@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { getCurrentStreak, getLongestStreak } from '../shared/streak';
 import habitIcons from './habitIcons';
+import { FacebookEmoji } from '../../utils/emojiHelper';
 
 function CalendarGrid({ dates }) {
   const days = [];
@@ -56,12 +57,22 @@ function HabitProgress() {
       {entries.map(({ habit, dates, total, streak, longest }) => (
         <div key={habit.id} className="habit-progress-card">
           <div className="habit-progress-card-header">
-            <span className="habit-progress-icon">{habitIcons[habit.id] || habit.icon || '⭐'}</span>
+            <span className="habit-progress-icon">
+              {habitIcons[habit.id] || <FacebookEmoji emoji={habit.icon || '⭐'} size={20} />}
+            </span>
             <span className="habit-progress-name">{habit.name}</span>
             {habit.description && <span className="habit-progress-desc">{habit.description}</span>}
             <div className="habit-progress-stats">
-              {streak > 0 && <span className="habit-progress-streak">🔥 {streak} day streak</span>}
-              {longest > streak && <span className="habit-progress-best">🏆 Best: {longest}</span>}
+              {streak > 0 && (
+                <span className="habit-progress-streak">
+                  <FacebookEmoji emoji="🔥" size={14} /> {streak} day streak
+                </span>
+              )}
+              {longest > streak && (
+                <span className="habit-progress-best">
+                  <FacebookEmoji emoji="🏆" size={14} /> Best: {longest}
+                </span>
+              )}
               <span className="habit-progress-total">{total}x</span>
             </div>
           </div>

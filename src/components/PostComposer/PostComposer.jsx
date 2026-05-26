@@ -5,6 +5,7 @@ import {
   getInitials,
 } from '../../utils/pseudonyms';
 import './PostComposer.css';
+import { FacebookEmoji } from '../../utils/emojiHelper';
 
 const availableTags = [
   { id: 'mentalhealth', label: '#mentalhealth' },
@@ -70,7 +71,9 @@ export default function PostComposer({ onPost }) {
       aria-labelledby="composer-heading"
     >
       <div className="section-header composer-section-header">
-        <span className="shield" aria-hidden="true">{'\u{1F4AC}'}</span>
+        <span className="shield" aria-hidden="true">
+          <FacebookEmoji emoji={'\u{1F4AC}'} size={20} inline={true} />
+        </span>
         <h2 id="composer-heading">Share what's on your mind</h2>
       </div>
 
@@ -86,7 +89,9 @@ export default function PostComposer({ onPost }) {
           <div className="pseudo-info">
             <span className="pseudo-name">{pseudo.name}</span>
             <span className="pseudo-label">
-              <span className="shield-small" aria-hidden="true">{'\u{1F6E1}'}</span>
+              <span className="shield-small" aria-hidden="true">
+                <FacebookEmoji emoji={'\u{1F6E1}'} size={12} inline={true} />
+              </span>
               Anonymous identity &middot; changes each post
             </span>
           </div>
@@ -98,7 +103,7 @@ export default function PostComposer({ onPost }) {
           aria-label="Generate new anonymous name"
           title="New random name"
         >
-          {'\u{1F504}'}
+          <FacebookEmoji emoji={'\u{1F504}'} size={16} inline={true} />
         </button>
       </div>
 
@@ -140,7 +145,9 @@ export default function PostComposer({ onPost }) {
 
       <div className="composer-actions">
         <span className="privacy-notice">
-          <span className="lock" aria-hidden="true">{'\u{1F512}'}</span>
+          <span className="lock" aria-hidden="true">
+            <FacebookEmoji emoji={'\u{1F512}'} size={14} inline={true} />
+          </span>
           Your identity is encrypted end-to-end. Never share personal info.
         </span>
         <button
@@ -149,7 +156,9 @@ export default function PostComposer({ onPost }) {
           disabled={!content.trim()}
           onClick={handleSubmit}
         >
-          <span aria-hidden="true">{'\u{27A1}'}</span>
+          <span aria-hidden="true">
+            <FacebookEmoji emoji={'\u{27A1}'} size={14} inline={true} />
+          </span>
           Post Anonymously
         </button>
       </div>

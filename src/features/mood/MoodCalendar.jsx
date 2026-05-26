@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { FacebookEmoji } from '../../utils/emojiHelper';
 
 const MOOD_COLORS = {
   Happy: '#22c55e',
@@ -91,7 +92,11 @@ function MoodCalendar() {
               title={mood ? `${day} — ${mood}` : String(day)}
             >
               <span className="mood-calendar-day">{day}</span>
-              {mood && <span className="mood-calendar-dot">{MOOD_ICONS[mood]}</span>}
+              {mood && (
+                <span className="mood-calendar-dot">
+                  <FacebookEmoji emoji={MOOD_ICONS[mood]} size={12} />
+                </span>
+              )}
             </div>
           );
         })}

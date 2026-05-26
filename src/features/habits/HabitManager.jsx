@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '../../context/AppContext';
 import habitIcons from './habitIcons';
+import { FacebookEmoji } from '../../utils/emojiHelper';
 
 const EMOJIS = ['🚶', '🏋️', '🧘', '😴', '💧', '✍️', '📖', '🍳', '🧹', '📱', '🎯', '👍', '💬', '🧑', '🙏', '⭐', '🎨', '🎵', '🌱', '☀️', '📵', '🫂', '🧠', '🥗', '💪', '🧁', '🎮', '📝', '🎧', '🌿'];
 
@@ -81,7 +82,9 @@ function HabitManager({ onClose }) {
           <div className="habit-manager-form">
             <div className="habit-manager-form-fields">
               <div className="habit-manager-emoji-row">
-                <span className="habit-manager-emoji-preview">{form.icon}</span>
+                <span className="habit-manager-emoji-preview">
+                  <FacebookEmoji emoji={form.icon} size={24} />
+                </span>
                 <select
                   className="habit-manager-emoji-select"
                   value={form.icon}
@@ -134,7 +137,9 @@ function HabitManager({ onClose }) {
               <span className="habit-manager-category-label">{cat}</span>
               {grouped[cat].map((h) => (
                 <div key={h.id} className="habit-manager-item">
-                  <span className="habit-manager-item-icon">{habitIcons[h.id] || h.icon || '⭐'}</span>
+                  <span className="habit-manager-item-icon">
+                    {habitIcons[h.id] || <FacebookEmoji emoji={h.icon || '⭐'} size={20} />}
+                  </span>
                   <div className="habit-manager-item-info">
                     <span className="habit-manager-item-name">{h.name}</span>
                     {h.description && <span className="habit-manager-item-desc">{h.description}</span>}

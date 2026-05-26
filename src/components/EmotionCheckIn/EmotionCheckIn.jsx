@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './EmotionCheckIn.css';
+import { FacebookEmoji } from '../../utils/emojiHelper';
 
 const emotions = [
   { id: 'exhausted', emoji: '\u{1F634}', label: 'Exhausted' },
@@ -28,7 +29,9 @@ export default function EmotionCheckIn({ showToast, onEmotionChange }) {
   return (
     <section className="emotion-checkin animate-in" aria-labelledby="checkin-heading">
       <div className="section-header">
-        <span className="shield" aria-hidden="true">{'\u{1F497}'}</span>
+        <span className="shield" aria-hidden="true">
+          <FacebookEmoji emoji={'\u{1F497}'} size={20} inline={true} />
+        </span>
         <h2 id="checkin-heading">How are you feeling?</h2>
       </div>
       <div className="checkin-prompt">
@@ -46,7 +49,9 @@ export default function EmotionCheckIn({ showToast, onEmotionChange }) {
             onClick={() => handleClick(e.id)}
             aria-pressed={selected === e.id}
           >
-            <span className="emoji" aria-hidden="true">{e.emoji}</span>
+            <span className="emoji" aria-hidden="true">
+              <FacebookEmoji emoji={e.emoji} size={32} />
+            </span>
             <span>{e.label}</span>
           </button>
         ))}

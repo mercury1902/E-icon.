@@ -51,6 +51,36 @@
   --heading: var(--font);
 }
 
+[data-theme='light'] {
+  --bg-main: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-elevated: #F1F5F9;
+  --primary: #8B5CF6;
+  --primary-hover: #7C3AED;
+  --primary-dim: rgba(139, 92, 246, 0.08);
+  --secondary: #06B6D4;
+  --secondary-hover: #0891B2;
+  --secondary-dim: rgba(6, 182, 212, 0.08);
+  --text: #0F172A;
+  --text-muted: #475569;
+  --text-dim: #64748B;
+  --border: #E2E8F0;
+  --danger: #EF4444;
+  --success: #10B981;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 8px rgba(0, 0, 0, 0.02);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03);
+
+  /* Feature CSS variable compatibility layer */
+  --bg: var(--bg-card);
+  --bg-alt: #F1F5F9;
+  --code-bg: #F1F5F9;
+  --text-h: var(--text);
+  --accent: var(--primary);
+  --accent-bg: var(--primary-dim);
+  --accent-border: rgba(139, 92, 246, 0.2);
+  --social-bg: rgba(139, 92, 246, 0.04);
+}
+
 html {
   scroll-behavior: smooth;
 }

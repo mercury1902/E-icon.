@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabaseClient';
+import { supabase, validateEmail } from '../lib/supabaseClient';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const serviceRoleKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
@@ -12,42 +12,33 @@ function isEmail(input) {
 }
 
 export async function signUp({ username, password, email, age }) {
-  const sanitized = sanitizeUsername(username);
-  const userEmail = email && email.trim()
-    ? email.trim()
-    : `anon_${sanitized}@murmur.app`;
+  if (email && email.trim()) {
+    const emailErr = validateEmail(email);
+    if (emailErr) throw new Error(emailErr);
+  }
 
-  const { data, error } = await supabase.auth.signUp({
-    email: userEmail,
-    password,
-    options: {
-      data: {
-        username: username.trim(),
-        age: age ? parseInt(age, 10) : null,
-        has_real_email: !!(email && email.trim()),
-      },
-    },
+  // Gọi Edge Function để đăng ký tài khoản (vá bảo mật, tránh lộ service_role_key)
+  const { data, error } = await supabase.functions.invoke('signup', {
+    body: {
+      username: username.trim(),
+      password,
+      email: email && email.trim() ? email.trim() : undefined,
+      age: age ? parseInt(age, 10) : null
+    }
   });
 
-  if (error) throw error;
-
-  if (data?.user) {
-    // Attempt auto-confirm via admin API (may be blocked by browser User-Agent)
-    if (serviceRoleKey) {
-      try {
-        await fetch(`${supabaseUrl}/auth/v1/admin/users/${data.user.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            apikey: serviceRoleKey,
-            Authorization: `Bearer ${serviceRoleKey}`,
-          },
-          body: JSON.stringify({ email_confirm: true }),
-        });
-      } catch {
-        // auto-confirm may be blocked in browser
+  if (error) {
+    // Lấy thông điệp lỗi chi tiết từ Deno Edge Function
+    let errMsg = 'Registration failed. Please try again.';
+    try {
+      if (error.context) {
+        const errJson = await error.context.json();
+        if (errJson && errJson.error) errMsg = errJson.error;
       }
+    } catch {
+      errMsg = error.message || errMsg;
     }
+    throw new Error(errMsg);
   }
 
   return data;
@@ -125,4 +116,19 @@ export async function getSession() {
   const { data: { session }, error } = await supabase.auth.getSession();
   if (error) throw error;
   return session;
+}
+
+export async function updateProfile(updates) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(updates)
+    .eq('user_id', user.id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 }

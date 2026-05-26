@@ -5,6 +5,7 @@ import {
   reflectionPrompts,
 } from '../../data/sidebarData';
 import './RightSidebar.css';
+import { FacebookEmoji } from '../../utils/emojiHelper';
 
 export default function RightSidebar({ showToast }) {
   const [prompt] = useState(
@@ -50,11 +51,17 @@ export default function RightSidebar({ showToast }) {
           {interactions.map((item, i) => (
             <div key={i} className="interaction-item">
               <span className="interaction-dot" aria-hidden="true">
-                {item.type === 'support'
-                  ? '\u{2764}\u{FE0F}'
-                  : item.type === 'reaction'
-                  ? '\u{1F44D}'
-                  : '\u{1F4AC}'}
+                <FacebookEmoji
+                  emoji={
+                    item.type === 'support'
+                      ? '\u{2764}\u{FE0F}'
+                      : item.type === 'reaction'
+                      ? '\u{1F44D}'
+                      : '\u{1F4AC}'
+                  }
+                  size={16}
+                  inline={true}
+                />
               </span>
               <div className="interaction-content">
                 <p className="interaction-message">{item.message}</p>
@@ -68,7 +75,9 @@ export default function RightSidebar({ showToast }) {
       <section className="sidebar-section reflection-section">
         <h3 className="sidebar-heading">Daily Reflection</h3>
         <div className="reflection-card">
-          <span className="reflection-icon" aria-hidden="true">{'\u{1F4AD}'}</span>
+          <span className="reflection-icon" aria-hidden="true">
+            <FacebookEmoji emoji={'\u{1F4AD}'} size={24} inline={true} />
+          </span>
           <p className="reflection-prompt">{prompt}</p>
           <button
             className="reflection-btn"
