@@ -3,24 +3,72 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  console.error(
+export const isSupabaseConfigured = !!(supabaseUrl && supabaseKey);
+
+let supabaseInstance;
+
+if (isSupabaseConfigured) {
+  supabaseInstance = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+    global: {
+      headers: {
+        'x-app-name': 'murmur',
+      },
+    },
+  });
+} else {
+  console.warn(
     'Supabase credentials missing. Ensure VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY are set in .env'
   );
+
+  // Robust Mock Proxy to prevent load-time crashes and handle initial queries/auth
+  supabaseInstance = new Proxy({}, {
+    get(target, prop) {
+      if (prop === 'auth') {
+        return {
+          onAuthStateChange: () => ({
+            data: { subscription: { unsubscribe: () => {} } },
+          }),
+          getSession: async () => ({ data: { session: null }, error: null }),
+          getUser: async () => ({ data: { user: null }, error: null }),
+          signInWithPassword: async () => {
+            throw new Error('Supabase environment variables are not configured.');
+          },
+          signOut: async () => {},
+        };
+      }
+      if (prop === 'functions') {
+        return {
+          invoke: async () => {
+            throw new Error('Supabase environment variables are not configured.');
+          },
+        };
+      }
+      
+      // Default fallback for any query calls (.from(), .rpc(), etc.)
+      return () => {
+        const dummyQuery = {
+          select: () => dummyQuery,
+          insert: () => dummyQuery,
+          update: () => dummyQuery,
+          delete: () => dummyQuery,
+          eq: () => dummyQuery,
+          is: () => dummyQuery,
+          order: () => dummyQuery,
+          single: async () => ({ data: null, error: new Error('Supabase is not configured.') }),
+          maybeSingle: async () => ({ data: null, error: new Error('Supabase is not configured.') }),
+        };
+        return dummyQuery;
+      };
+    },
+  });
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-  global: {
-    headers: {
-      'x-app-name': 'murmur',
-    },
-  },
-});
+export { supabaseInstance as supabase };
 
 export const TABLES = {
   POSTS: 'posts',

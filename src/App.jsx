@@ -25,6 +25,8 @@ import AdminDashboard from './components/Admin/AdminDashboard';
 import { navItems } from './data/sidebarData';
 import { getPosts, createPost } from './services/posts';
 import { saveMoodCheckin } from './services/mood';
+import { isSupabaseConfigured } from './lib/supabaseClient';
+import MissingConfig from './components/MissingConfig/MissingConfig';
 import './App.css';
 
 function HomePage() {
@@ -215,6 +217,12 @@ function FeatureRoutes() {
 }
 
 export default function App() {
+  const isBypassed = localStorage.getItem('bypass_supabase_check') === 'true';
+
+  if (!isSupabaseConfigured && !isBypassed) {
+    return <MissingConfig />;
+  }
+
   return (
     <BrowserRouter>
       <AuthProvider>
